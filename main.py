@@ -13,6 +13,7 @@ class Game:
         pg.display.set_caption(title)
         self.clock = pg.time.Clock()
         self.running = True
+        self.restart = False #will be true if player wants to return to main menu
         self.font_name = pg.font.match_font(font_name)
 
     #Start a new game
@@ -92,7 +93,7 @@ class Game:
     
     #Draw the game
     def draw(self):
-        self.screen.fill(black)
+        self.screen.fill(bgcolor)
         self.all_sprites.draw(self.screen)
         self.draw_text(str(self.score),30,white,width/2,15)
 
@@ -101,11 +102,55 @@ class Game:
 
     #Show the start screen or main menu for game
     def show_start_screen(self):
-        pass
+        self.screen.fill(bgcolor)
+        self.draw_text(main_menu_title, 48, white,width/2, height/4)
+        self.draw_text(main_menu_text1, 22, white,width/2, height/2)
+        self.draw_text(main_menu_text2, 22, white,width/2, height/2 + 50)
+        self.draw_text(main_menu_text3, 22, white,width/2, height/2 + 100)
+        pg.display.flip()
+        self.wait_for_key()
 
     #Show game over screen
     def show_go_screen(self):
-        pass
+        #if player has quit during a level, then game over screen not needed
+        if not self.running:
+            return
+        self.screen.fill(bgcolor)
+        self.draw_text(go_title, 48, white,width/2, height/4)
+        self.draw_text(str(go_text1) + str(self.score), 22, white,width/2, height/2)
+        self.draw_text(go_text2, 22, white,width/2, height/2 + 50)
+        self.draw_text(go_text3, 22, white,width/2, height/2 + 100)
+        pg.display.flip()
+        self.go_wait_for_key()
+        
+    #generic function requiring player to press any key
+    def wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.clock.tick(fps)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.running = False
+                    waiting = False
+                if event.type == pg.KEYUP:
+                    waiting = False
+    
+    #"wait_for_key" method adapted for game over screen
+    def go_wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.clock.tick(fps)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    waiting = False
+                    self.running = False
+                if event.type == pg.KEYUP:
+                    if event.key == pg.K_SPACE:
+                        waiting = False
+                    else:
+                        self.restart = True
+                        self.playing = False
+                        waiting = False       
 
     def draw_text(self, text, size, color, x, y):
         font = pg.font.Font(self.font_name, size)
@@ -119,5 +164,9 @@ g.show_start_screen()
 while g.running:
     g.new()
     g.show_go_screen()
+    #so goes back to main screen if any key except space pressed in game over screen
+    if g.restart:
+        g.show_start_screen()
+        g.restart = False
 
 pg.quit()
