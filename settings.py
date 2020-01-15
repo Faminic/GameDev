@@ -16,3 +16,4 @@ yellow = (255,255,0)
 #player properties
 player_acc = 0.5
 player_friction = -0.12
+player_gravity = 0.5

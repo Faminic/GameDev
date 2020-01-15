@@ -15,7 +15,7 @@ class Player(pg.sprite.Sprite):
         self.acc = vec(0,0)
     
     def update(self):
-        self.acc = vec(0,0)
+        self.acc = vec(0,player_gravity) #gravity basically pulls you down
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
             self.acc.x = -player_acc
@@ -23,7 +23,7 @@ class Player(pg.sprite.Sprite):
             self.acc.x = player_acc
         
         #apply friction
-        self.acc += self.vel * player_friction
+        self.acc.x += self.vel.x * player_friction
         #actual motion equation
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
@@ -33,4 +33,14 @@ class Player(pg.sprite.Sprite):
         if self.pos.x < 0:
             self.pos.x = width
 
-        self.rect.center = self.pos
+        self.rect.midbottom = self.pos
+
+
+class Platform(pg.sprite.Sprite):
+    def __init__(self, x, y, w, h):
+        pg.sprite.Sprite.__init__(self)
+        self.image = pg.Surface((w,h))
+        self.image.fill(green)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
