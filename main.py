@@ -18,14 +18,13 @@ class Game:
     def new(self):
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
-        self.player = Player()
+        self.player = Player(self)
         self.all_sprites.add(self.player)
-        p1 = Platform(0,height-40, width, 40)
-        self.all_sprites.add(p1)
-        self.platforms.add(p1)
-        p2 = Platform(width/2 - 50,height*3/4, 100, 20)
-        self.all_sprites.add(p2)
-        self.platforms.add(p2)
+        #adding all starting platforms
+        for plat in platform_list:
+            p = Platform(*plat)
+            self.all_sprites.add(p)
+            self.platforms.add(p)
         self.run()
 
     #Game Loop
@@ -40,11 +39,13 @@ class Game:
     #Update the game
     def update(self):
         self.all_sprites.update()
-        #have player stand firmly on top of platform in case of collision
-        hits = pg.sprite.spritecollide(self.player, self.platforms, False)
-        if hits:
-            self.player.pos.y = hits[0].rect.top
-            self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
+        #have player stand firmly on top of platform in case of collision (but only when player lands from top)
+        if self.player.vel.y > 0:
+            hits = pg.sprite.spritecollide(self.player, self.platforms, False)
+            if hits:
+                self.player.pos.y = hits[0].rect.top
+                self.player.rect.midbottom = self.player.pos
+                self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
 
     #Deal with events for game
     def events(self):
@@ -54,6 +55,9 @@ class Game:
                 if self.playing:
                     self.playing = False
                 self.running = False
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    self.player.jump()
     
     #Draw the game
     def draw(self):
