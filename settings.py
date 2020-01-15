@@ -6,6 +6,7 @@ width = 540
 height = 760
 fps = 60
 font_name = "arial"
+hsFile = "highscore.txt"
 
 
 #colors
@@ -45,5 +46,7 @@ main_menu_text3 = "Press any key to play"
 #game over text
 go_title = "Game Over"
 go_text1 = "Final Score: "
-go_text2 = "Press space to play again"
-go_text3 = "Press any other key to return to the main menu"
+go_text2 = "Highscore: "
+go_text3 = "Press space to play again"
+go_text4 = "Press any other key to return to the main menu"
+go_hs_text = "NEW HIGH SCORE!!!"

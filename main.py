@@ -2,6 +2,7 @@ import pygame as pg
 import random
 from settings import *
 from sprites import *
+from os import path
 
 
 class Game:
@@ -15,6 +16,7 @@ class Game:
         self.running = True
         self.restart = False #will be true if player wants to return to main menu
         self.font_name = pg.font.match_font(font_name)
+        self.load_data()
 
     #Start a new game
     def new(self):
@@ -29,6 +31,16 @@ class Game:
             self.all_sprites.add(p)
             self.platforms.add(p)
         self.run()
+
+    #used to load all necessary data
+    def load_data(self):
+        #load high score
+        self.dir = path.dirname(__file__)
+        with open(path.join(self.dir,hsFile), 'r') as f:
+            try:
+                self.highscore = int(f.read())
+            except:
+                self.highscore = 0
 
     #Game Loop
     def run(self):
@@ -118,8 +130,17 @@ class Game:
         self.screen.fill(bgcolor)
         self.draw_text(go_title, 48, white,width/2, height/4)
         self.draw_text(str(go_text1) + str(self.score), 22, white,width/2, height/2)
-        self.draw_text(go_text2, 22, white,width/2, height/2 + 50)
+        #update highscore if necessary
+        if self.score > self.highscore:
+            self.highscore = self.score
+            self.draw_text(go_hs_text, 22, white,width/2, height/2 + 50)
+            #update file
+            with open(path.join(self.dir, hsFile),'w') as f:
+                f.write(str(self.score))
+        else:
+            self.draw_text(str(go_text2) + str(self.highscore), 22, white,width/2, height/2 + 50)
         self.draw_text(go_text3, 22, white,width/2, height/2 + 100)
+        self.draw_text(go_text4, 22, white,width/2, height/2 + 150)
         pg.display.flip()
         self.go_wait_for_key()
         
