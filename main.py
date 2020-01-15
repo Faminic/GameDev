@@ -13,9 +13,11 @@ class Game:
         pg.display.set_caption(title)
         self.clock = pg.time.Clock()
         self.running = True
+        self.font_name = pg.font.match_font(font_name)
 
     #Start a new game
     def new(self):
+        self.score = 0
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
         self.player = Player(self)
@@ -56,6 +58,7 @@ class Game:
                 #now need to kill items that are pushed down
                 if plat.rect.top >= height:
                     plat.kill()
+                    self.score += 1
         
         #spawn new items to replace lost ones
         while len(self.platforms) < 10:
@@ -65,6 +68,15 @@ class Game:
                          platWidth,20)
             self.platforms.add(p)
             self.all_sprites.add(p)
+        
+        #game over
+        if self.player.rect.bottom > height:
+            for sprite in self.all_sprites:
+                sprite.rect.y -= max(self.player.vel.y, 10)
+                if sprite.rect.bottom < 0:
+                    sprite.kill()
+        if len(self.platforms) == 0:
+            self.playing = False
 
     #Deal with events for game
     def events(self):
@@ -82,6 +94,9 @@ class Game:
     def draw(self):
         self.screen.fill(black)
         self.all_sprites.draw(self.screen)
+        self.draw_text(str(self.score),30,white,width/2,15)
+
+        #after drawing everything, flip the display
         pg.display.flip()
 
     #Show the start screen or main menu for game
@@ -92,6 +107,12 @@ class Game:
     def show_go_screen(self):
         pass
 
+    def draw_text(self, text, size, color, x, y):
+        font = pg.font.Font(self.font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x,y)
+        self.screen.blit(text_surface, text_rect)
 
 g = Game()
 g.show_start_screen()

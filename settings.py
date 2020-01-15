@@ -1,9 +1,11 @@
 #will contain settings variables for game in general
 
+#general game settings
 title = "Have fun!"
 width = 540
 height = 760
 fps = 60
+font_name = "arial"
 
 #colors
 white = (255,255,255)
