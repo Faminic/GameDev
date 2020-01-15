@@ -46,6 +46,25 @@ class Game:
                 self.player.pos.y = hits[0].rect.top
                 self.player.rect.midbottom = self.player.pos
                 self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
+    
+        #want to adjust camera when player reaches top
+        if self.player.rect.top <= height / 4:
+            #pushing the player and items on screen down == moving the camera upwards
+            self.player.pos.y += abs(self.player.vel.y)
+            for plat in self.platforms:
+                plat.rect.y += abs(self.player.vel.y)
+                #now need to kill items that are pushed down
+                if plat.rect.top >= height:
+                    plat.kill()
+        
+        #spawn new items to replace lost ones
+        while len(self.platforms) < 10:
+            platWidth = random.randrange(plat_width_min,plat_width_max)
+            p = Platform(random.randrange(0,width-platWidth),
+                         random.randrange(-75,-30),
+                         platWidth,20)
+            self.platforms.add(p)
+            self.all_sprites.add(p)
 
     #Deal with events for game
     def events(self):

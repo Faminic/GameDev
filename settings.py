@@ -1,8 +1,8 @@
 #will contain settings variables for game in general
 
 title = "Have fun!"
-width = 480
-height = 600
+width = 540
+height = 760
 fps = 60
 
 #colors
@@ -20,8 +20,14 @@ player_gravity = 0.5
 player_jump = 15 #jump height
 
 #starting platforms -> all platforms that appear at the start of a level
-platform_list = [(0,height-40, width, 40),
+platform_list = [(0,height-60, width, 60),
                 (width/2 - 50,height*3/4, 100, 20),
+                (width*3/4,height*0.5,70,20),
                 (125,height-350,100,20),
                 (350,200,100,20),
                 (175,100,50,20)]
+
+#platform spawn properties -> properties used when spawning new platforms
+plat_width_min = 0.1*width
+plat_width_max = 0.2*width
+
