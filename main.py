@@ -4,6 +4,14 @@ from settings import *
 from sprites import *
 from os import path
 
+'''
+To do after tutorial
+- Make game wider
+- Incorporate Levels
+- Adjust how data is saved and read
+- Reset all saved data before submission (or create a function that does it)
+- Give the game a name and add it to the main/starting screen
+'''
 
 class Game:
     #initializing the game window and so on
@@ -36,11 +44,14 @@ class Game:
     def load_data(self):
         #load high score
         self.dir = path.dirname(__file__)
+        img_dir = path.join(self.dir, "images")
         with open(path.join(self.dir,hsFile), 'r') as f:
             try:
                 self.highscore = int(f.read())
             except:
                 self.highscore = 0
+        #load player spritesheet
+        self.spritesheet = Spritesheet(path.join(img_dir,player_spritesheet))
 
     #Game Loop
     def run(self):

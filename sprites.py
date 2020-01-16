@@ -7,8 +7,8 @@ class Player(pg.sprite.Sprite):
     def __init__(self,game):
         pg.sprite.Sprite.__init__(self)
         self.game = game #is a reference to the current game
-        self.image = pg.Surface((30,40))
-        self.image.fill(yellow)
+        self.image = self.game.spritesheet.get_image(67,190,66,92,1.5)
+        self.image.set_colorkey(black)
         self.rect = self.image.get_rect()
         self.rect.center = (width / 2, height / 2)
         self.pos = vec(width/2, height/2)
@@ -53,3 +53,17 @@ class Platform(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+#class for loading and dealing with spritesheets
+class Spritesheet:
+    def __init__(self,filename):
+        self.spritesheet = pg.image.load(filename).convert()
+    
+    #have multiple images in spritesheet, so this function helps get a specific image out
+    def get_image(self,x,y,width,height,scaleBy):
+        image = pg.Surface((width,height))
+        image.blit(self.spritesheet,(0,0),(x,y,width,height))
+        #scale it appropriately
+        image = pg.transform.scale(image, (round(width/scaleBy),round(height/scaleBy)))
+        return image
+
