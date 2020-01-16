@@ -35,7 +35,7 @@ class Game:
         self.all_sprites.add(self.player)
         #adding all starting platforms
         for plat in platform_list:
-            p = Platform(*plat)
+            p = Platform(self,*plat)
             self.all_sprites.add(p)
             self.platforms.add(p)
         self.run()
@@ -52,6 +52,8 @@ class Game:
                 self.highscore = 0
         #load player spritesheet
         self.spritesheet = Spritesheet(path.join(img_dir,player_spritesheet))
+        #load platform spritesheet
+        self.plat_spritesheet = Spritesheet(path.join(img_dir,platform_spritesheet))
 
     #Game Loop
     def run(self):
@@ -74,11 +76,11 @@ class Game:
                 self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
     
         #want to adjust camera when player reaches top
-        if self.player.rect.top <= height / 4:
+        if self.player.rect.top <= round(height /4):
             #pushing the player and items on screen down == moving the camera upwards
-            self.player.pos.y += abs(self.player.vel.y)
+            self.player.pos.y += max(abs(self.player.vel.y),2)
             for plat in self.platforms:
-                plat.rect.y += abs(self.player.vel.y)
+                plat.rect.y += max(abs(self.player.vel.y),2)
                 #now need to kill items that are pushed down
                 if plat.rect.top >= height:
                     plat.kill()
@@ -87,9 +89,9 @@ class Game:
         #spawn new items to replace lost ones
         while len(self.platforms) < 10:
             platWidth = random.randrange(plat_width_min,plat_width_max)
-            p = Platform(random.randrange(0,width-platWidth),
+            p = Platform(self,random.randrange(0,width-(platWidth*70)),
                          random.randrange(-75,-30),
-                         platWidth,20)
+                         platWidth,0)
             self.platforms.add(p)
             self.all_sprites.add(p)
         
@@ -118,6 +120,7 @@ class Game:
     def draw(self):
         self.screen.fill(bgcolor)
         self.all_sprites.draw(self.screen)
+        self.screen.blit(self.player.image, self.player.rect)
         self.draw_text(str(self.score),30,white,width/2,15)
 
         #after drawing everything, flip the display

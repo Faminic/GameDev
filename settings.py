@@ -13,8 +13,9 @@ hsFile = "highscore.txt"
 
 
 #spritesheet settings
-#spritesheet below comes from https://opengameart.org/content/platformer-art-complete-pack-often-updated
+#spritesheets below comes from https://opengameart.org/content/platformer-art-complete-pack-often-updated
 player_spritesheet = "player_spritesheet.png"
+platform_spritesheet = "platform_spritesheet.png"
 
 
 
@@ -37,18 +38,21 @@ player_jump = 15 #jump height
 
 
 #starting platforms -> all platforms that appear at the start of a level
-platform_list = [(0,height-60, width, 60),
-                (width/2 - 50,height*3/4, 100, 20),
-                (width*3/4,height*0.5,70,20),
-                (125,height-350,100,20),
-                (350,200,100,20),
-                (175,100,50,20)]
+#arguments are x,y,width,terrain
+platform_list = [(0,height-60, 8, 0),
+                (width/2 - 100,height*3/4 - 50, 3, 1),
+                (width*3/4,height*0.5,2,2),
+                (30,height-475,2,3),
+                (350,200,1,4),
+                (175,100,1,0)]
 
 
 #platform spawn properties -> properties used when spawning new platforms
-plat_width_min = 0.1*width
-plat_width_max = 0.2*width
+plat_width_min = 1
+plat_width_max = 3
 
+#platform terrain types
+#order will be grass, sand, stone, snow, castle -> so if terrain = 0, then terrain is grass
 
 #main menu text
 main_menu_title = "Game Name - TBD"

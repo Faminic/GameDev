@@ -1,6 +1,7 @@
 # Will contain all sprite classes for my game
 import pygame as pg
 from settings import *
+import random
 vec = pg.math.Vector2
 
 class Player(pg.sprite.Sprite):
@@ -17,8 +18,8 @@ class Player(pg.sprite.Sprite):
         self.looking_right = True #player is initially looking right
         self.image = self.standing_frame_r
         self.rect = self.image.get_rect()
-        self.rect.center = (width / 2, height / 2)
-        self.pos = vec(width/2, height/2)
+        self.rect.center = (width / 2, height-50)
+        self.pos = vec(width/2, height-50)
         self.vel = vec(0,0)
         self.acc = vec(0,0)
     
@@ -52,9 +53,9 @@ class Player(pg.sprite.Sprite):
     
     def jump(self):
         # jump only if standing on a platform -> do that by checking if there is a collision 1 pixel below
-        self.rect.y += 1
+        self.rect.y += 2
         hits = pg.sprite.spritecollide(self, self.game.platforms,False)
-        self.rect.y += -1
+        self.rect.y += -2
         if hits:
             self.vel.y = -player_jump
 
@@ -139,10 +140,20 @@ class Player(pg.sprite.Sprite):
             self.rect.bottom = bottom
 
 class Platform(pg.sprite.Sprite):
-    def __init__(self, x, y, w, h):
+    def __init__(self, game, x, y, w, terrain):
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.Surface((w,h))
-        self.image.fill(green)
+        self.game = game
+        #all sprites for platforms
+        #order will be grass, sand, stone, snow, castle
+        images = [self.game.plat_spritesheet.get_image(648,0,70,70,1),
+                  self.game.plat_spritesheet.get_image(360,792,70,70,1),
+                  self.game.plat_spritesheet.get_image(144,648,70,70,1),
+                  self.game.plat_spritesheet.get_image(288,144,70,70,1),
+                  self.game.plat_spritesheet.get_image(288,792,70,70,1)]
+        self.image = pg.Surface((w*70,70))
+        for i in range(0,w):
+            self.image.blit(images[terrain],(i*70,0))
+        self.image.set_colorkey(black)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
