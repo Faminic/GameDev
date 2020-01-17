@@ -6,7 +6,9 @@ vec = pg.math.Vector2
 
 class Player(pg.sprite.Sprite):
     def __init__(self,game):
-        pg.sprite.Sprite.__init__(self)
+        self.groups = game.all_sprites
+        self._layer = player_layer
+        pg.sprite.Sprite.__init__(self,self.groups)
         self.game = game #is a reference to the current game
         #variables for animations
         self.walking = False
@@ -142,7 +144,9 @@ class Player(pg.sprite.Sprite):
 
 class Platform(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, terrain):
-        pg.sprite.Sprite.__init__(self)
+        self.groups = game.all_sprites, game.platforms
+        self._layer = platform_layer
+        pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         #all sprites for platforms
         #order will be grass, sand, stone, snow, castle
@@ -173,3 +177,57 @@ class Spritesheet:
         image = pg.transform.scale(image, (round(width/scaleBy),round(height/scaleBy)))
         return image
 
+#mob coming from the side of the screen
+class Bee(pg.sprite.Sprite):
+    def __init__(self,game):
+        self._layer = mob_layer
+        self.groups = game.all_sprites, game.mobs
+        pg.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.image_up_r = self.game.enemy_spritesheet.get_image(315,353,56,48,1)
+        self.image_down_r = self.game.enemy_spritesheet.get_image(140,23,61,42,1)
+        self.image_up_l = pg.transform.flip(self.image_up_r,True,False)
+        self.image_down_l = pg.transform.flip(self.image_down_r,True,False)
+        self.image_up_r.set_colorkey(black)
+        self.image_down_r.set_colorkey(black)
+        self.image_up_l.set_colorkey(black)
+        self.image_down_l.set_colorkey(black)
+        self.spawn_location = random.choice([-80,width+80])
+        if self.spawn_location > 0:
+            self.image = self.image_up_r
+            self.rect = self.image.get_rect()
+            self.rect.centerx = self.spawn_location
+        else:
+            self.image = self.image_up_l
+            self.rect = self.image.get_rect()
+            self.rect.centerx = self.spawn_location           
+        #will have different speeds
+        self.velx = random.randrange(1,4)
+        self.vely = 0
+        if self.rect.centerx > width:
+            self.velx *= -1
+        #bee spawns somewhere under half screen
+        self.rect.y = random.randrange(height/2)
+        self.yacc = 0.5
+    
+    def update(self):
+        self.rect.x += self.velx
+        self.vely += self.yacc
+        #so it bobs up and down
+        if self.vely > 3 or self.vely < -3:
+            self.yacc *= -1
+        tempCenter = self.rect.center
+        if self.yacc < 0:
+            if self.spawn_location > 0:
+                self.image = self.image_up_r
+            else:
+                self.image = self.image_up_l
+        else:
+            if self.spawn_location > 0:
+                self.image = self.image_down_r
+            else:
+                self.image = self.image_down_l
+        self.rect = self.image.get_rect()
+        self.rect.center = tempCenter
+        self.rect.y += self.vely
+        

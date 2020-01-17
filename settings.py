@@ -15,6 +15,7 @@ hsFile = "highscore.txt"
 #spritesheet settings
 player_spritesheet = "player_spritesheet.png"
 platform_spritesheet = "platform_spritesheet.png"
+enemy1_spritesheet = "enemies_spritesheet.png"
 
 
 
@@ -50,6 +51,7 @@ platform_list = [(0,height-60, 8, 0),
 plat_width_min = 1
 plat_width_max = 3
 
+
 #platform terrain types
 #order will be grass, sand, stone, snow, castle -> so if terrain = 0, then terrain is grass
 
@@ -68,8 +70,21 @@ go_text3 = "Press space to play again"
 go_text4 = "Press any other key to return to the main menu"
 go_hs_text = "NEW HIGH SCORE!!!"
 
+
 #sound settings
 jumpSound = "jump.wav"
+mob_hit_sound = "hit.wav"
+falling_sound = "fall.wav"
 main_menu_bgmusic = "allthat.ogg"
 go_bgmusic = "november.ogg"
 stage_1_bgmusic = "jazzyfrenchy.ogg"
+
+
+#mob spawn settings
+bee_spawn = 5000 #every 5 seconds
+
+
+#layer settings -> order in which things appear on screen
+player_layer = 3
+mob_layer = 2
+platform_layer = 1

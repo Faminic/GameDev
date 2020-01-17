@@ -5,9 +5,11 @@ from sprites import *
 from os import path
 
 #The following resources were used when creating this game
-#    from https://opengameart.org/content/platformer-art-complete-pack-often-updated
+#Sprite sheets from https://opengameart.org/content/platformer-art-complete-pack-often-updated
 #YouTube Tutorial by https://www.youtube.com/watch?v=uWvb3QzA48c&list=PLsk-HSGFjnaG-BwZkuAOcVwWldfCLu1pq&index=1 to learn pygame fundamentals
-#Noises came from https://freesound.org/people/cabled_mess/sounds/350906/
+#Jump Noise came from https://freesound.org/people/cabled_mess/sounds/350906/
+#Fall Noise came from https://freesound.org/people/cabled_mess/sounds/371451/
+#Hit Noise came from https://freesound.org/people/cabled_mess/sounds/350984/
 #grass stage background music: https://www.bensound.com/royalty-free-music/track/jazzy-frenchy
 #main menu background music: https://www.bensound.com/royalty-free-music/track/november
 #game over background music: https://www.bensound.com/royalty-free-music/track/all-that-chill-hop
@@ -15,7 +17,9 @@ from os import path
 '''
 To do after tutorial
 - Make game wider
+- Add hearts
 - Incorporate Levels
+- Implement a reset all values function for level specific components
 - Adjust how data is saved and read
 - Reset all saved data before submission (or create a function that does it)
 - Give the game a name and add it to the main/starting screen
@@ -38,15 +42,14 @@ class Game:
     #Start a new game
     def new(self):
         self.score = 0
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = pg.sprite.LayeredUpdates()
         self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
+        self.mobs = pg.sprite.Group() #store all the mobs
+        self.bee_timer = 0
         self.player = Player(self)
-        self.all_sprites.add(self.player)
         #adding all starting platforms
         for plat in platform_list:
-            p = Platform(self,*plat)
-            self.all_sprites.add(p)
-            self.platforms.add(p)
+            Platform(self,*plat)
         self.run()
 
     #used to load all necessary data
@@ -63,13 +66,16 @@ class Game:
         self.spritesheet = Spritesheet(path.join(img_dir,player_spritesheet))
         #load platform spritesheet
         self.plat_spritesheet = Spritesheet(path.join(img_dir,platform_spritesheet))
+        #load enemy spritesheet
+        self.enemy_spritesheet = Spritesheet(path.join(img_dir,enemy1_spritesheet))
         #load sounds
         self.sound_dir = path.join(self.dir, "sounds")
         self.jump_sound = pg.mixer.Sound(path.join(self.sound_dir,jumpSound))
+        self.hit_sound = pg.mixer.Sound(path.join(self.sound_dir,mob_hit_sound))
+        self.fall_sound = pg.mixer.Sound(path.join(self.sound_dir,falling_sound))
 
     #Game Loop
     def run(self):
-        
         self.playing = True
         while self.playing:
             self.clock.tick(fps)
@@ -77,7 +83,6 @@ class Game:
             self.update()
             self.draw()
         
-
     #Update the game
     def update(self):
         self.all_sprites.update()
@@ -90,10 +95,13 @@ class Game:
                 for hit in hits:
                     if hit.rect.bottom > lowest.rect.bottom:
                         lowest = hit
-                if self.player.pos.y < lowest.rect.centery:
-                    self.player.pos.y = lowest.rect.top
-                    self.player.rect.midbottom = self.player.pos
-                    self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
+                #make player fall off edge of platform
+                if self.player.pos.x < lowest.rect.right +9 and self.player.pos.x > lowest.rect.left - 9:
+                    #make player stand on platform
+                    if self.player.pos.y < lowest.rect.centery:
+                        self.player.pos.y = lowest.rect.top
+                        self.player.rect.midbottom = self.player.pos
+                        self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
     
         #want to adjust camera when player reaches top
         if self.player.rect.top <= round(height /4):
@@ -105,15 +113,18 @@ class Game:
                 if plat.rect.top >= height:
                     plat.kill()
                     self.score += 1
+            for mob in self.mobs:
+                mob.rect.y += max(abs(self.player.vel.y),2)
+                #now need to kill items that are pushed down
+                if mob.rect.top >= height:
+                    mob.kill()
         
         #spawn new items to replace lost ones
         while len(self.platforms) < 10:
             platWidth = random.randrange(plat_width_min,plat_width_max)
-            p = Platform(self,random.randrange(0,width-(platWidth*70)),
+            Platform(self,random.randrange(0,width-(platWidth*70)),
                          random.randrange(-75,-30),
                          platWidth,0)
-            self.platforms.add(p)
-            self.all_sprites.add(p)
         
         #game over
         if self.player.rect.bottom > height:
@@ -122,6 +133,19 @@ class Game:
                 if sprite.rect.bottom < 0:
                     sprite.kill()
         if len(self.platforms) == 0:
+            self.fall_sound.play()
+            self.playing = False
+        
+        #spawn mobs
+        bee_now = pg.time.get_ticks()
+        if bee_now - self.bee_timer > bee_spawn + random.choice([-1000,-500,0,500,1000]):
+            self.bee_timer = bee_now
+            Bee(self)
+        
+        #mob collision
+        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+        if mob_hits:
+            self.hit_sound.play()
             self.playing = False
 
     #Deal with events for game
@@ -141,9 +165,7 @@ class Game:
     def draw(self):
         self.screen.fill(bgcolor)
         self.all_sprites.draw(self.screen)
-        self.screen.blit(self.player.image, self.player.rect)
         self.draw_text(str(self.score),30,white,width/2,15)
-
         #after drawing everything, flip the display
         pg.display.flip()
 
