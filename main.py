@@ -16,14 +16,15 @@ from os import path
 
 '''
 To do after tutorial
-- Make game wider
 - Add hearts
+- Have warning for when bee/bat spawns
 - Incorporate Levels
 - Implement a reset all values function for level specific components
 - Adjust how data is saved and read
 - Reset all saved data before submission (or create a function that does it)
 - Give the game a name and add it to the main/starting screen
 - Change variable names and structure
+- Test the game on the uni system
 '''
 
 class Game:
@@ -45,6 +46,10 @@ class Game:
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
         self.mobs = pg.sprite.Group() #store all the mobs
+        self.plat_spawn_counter = 0 #used to determine where platforms spawn
+        self.mid_plat_height = 0
+        self.left_plat_height = 0
+        self.right_plat_height = 0
         self.bee_timer = 0
         self.bat_timer = 0
         self.player = Player(self)
@@ -120,12 +125,34 @@ class Game:
                 if mob.rect.top >= height:
                     mob.kill()
         
-        #spawn new items to replace lost ones
-        while len(self.platforms) < 10:
+        #spawn new platforms to replace lost ones
+        widthCutoff = width/3
+        while len(self.platforms) < 7:
             platWidth = random.randrange(plat_width_min,plat_width_max)
-            Platform(self,random.randrange(0,width-(platWidth*70)),
-                         random.randrange(-75,-30),
+            if self.plat_spawn_counter == 0:
+                self.left_plat_height = random.randrange(-55,-30)
+                Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
+                         self.left_plat_height,
                          platWidth,0)
+                self.plat_spawn_counter += 1
+            elif self.plat_spawn_counter == 1:
+                self.mid_plat_height = random.randrange(-55,-30)
+                Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
+                         self.mid_plat_height,
+                         platWidth,0)
+                self.plat_spawn_counter += 1
+            elif self.plat_spawn_counter == 2:
+                self.right_plat_height = random.randrange(-55,-30)
+                Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
+                         self.right_plat_height,
+                         platWidth,0)
+                self.plat_spawn_counter += 1
+            else:
+
+                Platform(self,random.randrange(widthCutoff,2*widthCutoff),
+                         min(self.left_plat_height,self.mid_plat_height,self.right_plat_height) -30,
+                         platWidth,0)
+                self.plat_spawn_counter = 0
         
         #game over
         if self.player.rect.bottom > height:

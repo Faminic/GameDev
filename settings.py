@@ -2,8 +2,8 @@
 
 #general game settings
 title = "Have fun!"
-width = 540
-height = 760
+width = 900
+height = 750
 fps = 60
 font_name = "arial"
 
@@ -39,17 +39,17 @@ player_jump = 15 #jump height
 
 #starting platforms -> all platforms that appear at the start of a level
 #arguments are x,y,width,terrain
-platform_list = [(0,height-60, 8, 0),
-                (width/2 - 100,height*3/4 - 50, 3, 1),
-                (width*3/4,height*0.5,2,2),
-                (30,height-475,2,3),
-                (350,200,1,4),
-                (175,100,1,0)]
+platform_list = [(0,height-60, 13, 0),
+                (width/2 - 150,height*3/4 - 50, 4, 1),
+                (width*3/4-100,height*0.5,3,2),
+                (30,height-425,3,3),
+                (475,150,4,4),
+                (175,100,3,0)]
 
 
 #platform spawn properties -> properties used when spawning new platforms
-plat_width_min = 1
-plat_width_max = 3
+plat_width_min = 3
+plat_width_max = 5
 
 
 #platform terrain types
@@ -89,3 +89,4 @@ bat_spawn = 3000
 player_layer = 3
 mob_layer = 2
 platform_layer = 1
+background_layer = 0
