@@ -291,3 +291,17 @@ class Bat(pg.sprite.Sprite):
         self.mask = pg.mask.from_surface(self.image)
         self.rect.center = tempCenter
         self.rect.y += self.vely
+    
+
+#Lives remaining
+class Heart(pg.sprite.Sprite):
+    def __init__(self,game,x,y):
+        self._layer = player_layer
+        self.groups = game.all_sprites, game.hearts
+        pg.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.image = self.game.heart_spritesheet.get_image(0,94,53,45,1)
+        self.image.set_colorkey(black)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y

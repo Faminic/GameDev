@@ -16,6 +16,7 @@ hsFile = "highscore.txt"
 player_spritesheet = "player_spritesheet.png"
 platform_spritesheet = "platform_spritesheet.png"
 enemy1_spritesheet = "enemies_spritesheet.png"
+hud_spritesheet = "hud_spritesheet.png"
 
 
 
@@ -35,6 +36,7 @@ player_acc = 0.5
 player_friction = -0.12
 player_gravity = 0.5
 player_jump = 15 #jump height
+player_invincible = 2500
 
 
 #starting platforms -> all platforms that appear at the start of a level

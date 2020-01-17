@@ -16,7 +16,6 @@ from os import path
 
 '''
 To do after tutorial
-- Add hearts
 - Have warning for when bee/bat spawns
 - Incorporate Levels
 - Implement a reset all values function for level specific components
@@ -46,16 +45,22 @@ class Game:
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
         self.mobs = pg.sprite.Group() #store all the mobs
+        self.hearts = pg.sprite.Group() #stores all the hearts
         self.plat_spawn_counter = 0 #used to determine where platforms spawn
         self.mid_plat_height = 0
         self.left_plat_height = 0
         self.right_plat_height = 0
         self.bee_timer = 0
         self.bat_timer = 0
+        self.invincible_timer = 0
+        self.invincible = False
+        self.numberOfHearts = 3
         self.player = Player(self)
         #adding all starting platforms
         for plat in platform_list:
             Platform(self,*plat)
+        for heart in range(self.numberOfHearts):
+            Heart(self,53*(heart)+10,10)
         self.run()
 
     #used to load all necessary data
@@ -74,6 +79,8 @@ class Game:
         self.plat_spritesheet = Spritesheet(path.join(img_dir,platform_spritesheet))
         #load enemy spritesheet
         self.enemy_spritesheet = Spritesheet(path.join(img_dir,enemy1_spritesheet))
+        #load heart spritesheet
+        self.heart_spritesheet = Spritesheet(path.join(img_dir,hud_spritesheet))
         #load sounds
         self.sound_dir = path.join(self.dir, "sounds")
         self.jump_sound = pg.mixer.Sound(path.join(self.sound_dir,jumpSound))
@@ -174,15 +181,28 @@ class Game:
         if bat_now - self.bat_timer > bat_spawn + random.choice([-1000,-500,0,500,1000]):
             self.bat_timer = bat_now
             Bat(self)
+
+        #break_invicibility
+        invincible_now = pg.time.get_ticks()
+        if invincible_now - self.invincible_timer > player_invincible:
+            self.invincible_timer = invincible_now
+            self.invincible = False
         
         #mob collision
         mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
-        if mob_hits:
+        if mob_hits and not self.invincible:
             #now do a mask collision to check if an actual collision occurred or if rectangles just overlapped
             mob_hits2 = pg.sprite.spritecollide(self.player, self.mobs, False, pg.sprite.collide_mask)
-            if mob_hits2:
+            if mob_hits2 and not self.invincible:
                 self.hit_sound.play()
-                self.playing = False
+                self.numberOfHearts -= 1
+                for heart in self.hearts:
+                    heart.kill()
+                for heart in range(self.numberOfHearts):
+                    Heart(self,53*(heart)+10,10)
+                if self.numberOfHearts == 0:
+                    self.playing = False
+                self.invincible = True
 
     #Deal with events for game
     def events(self):
