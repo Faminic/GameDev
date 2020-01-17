@@ -1,4 +1,4 @@
-import pygame as pg
+import pygame
 import random
 from settings import *
 from sprites import *
@@ -16,9 +16,7 @@ from os import path
 
 '''
 To do after tutorial
-- Have warning for when bee/bat spawns
 - Incorporate Levels
-- Implement a reset all values function for level specific components
 - Adjust how data is saved and read
 - Reset all saved data before submission (or create a function that does it)
 - Give the game a name and add it to the main/starting screen
@@ -29,23 +27,23 @@ To do after tutorial
 class Game:
     #initializing the game window and so on
     def __init__(self):
-        pg.init()
-        pg.mixer.init()
-        self.screen = pg.display.set_mode((width,height))
-        pg.display.set_caption(title)
-        self.clock = pg.time.Clock()
+        pygame.init()
+        pygame.mixer.init()
+        self.screen = pygame.display.set_mode((width,height))
+        pygame.display.set_caption(title)
+        self.clock = pygame.time.Clock()
         self.running = True
         self.restart = False #will be true if player wants to return to main menu
-        self.font_name = pg.font.match_font(font_name)
+        self.font_name = pygame.font.match_font(font_name)
         self.load_data()
 
     #Start a new game
     def new(self):
         self.score = 0
-        self.all_sprites = pg.sprite.LayeredUpdates()
-        self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
-        self.mobs = pg.sprite.Group() #store all the mobs
-        self.hearts = pg.sprite.Group() #stores all the hearts
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.platforms = pygame.sprite.Group() #store all platforms here so we can do collisions easily
+        self.mobs = pygame.sprite.Group() #store all the mobs
+        self.hearts = pygame.sprite.Group() #stores all the hearts
         self.plat_spawn_counter = 0 #used to determine where platforms spawn
         self.mid_plat_height = 0
         self.left_plat_height = 0
@@ -83,9 +81,9 @@ class Game:
         self.heart_spritesheet = Spritesheet(path.join(img_dir,hud_spritesheet))
         #load sounds
         self.sound_dir = path.join(self.dir, "sounds")
-        self.jump_sound = pg.mixer.Sound(path.join(self.sound_dir,jumpSound))
-        self.hit_sound = pg.mixer.Sound(path.join(self.sound_dir,mob_hit_sound))
-        self.fall_sound = pg.mixer.Sound(path.join(self.sound_dir,falling_sound))
+        self.jump_sound = pygame.mixer.Sound(path.join(self.sound_dir,jumpSound))
+        self.hit_sound = pygame.mixer.Sound(path.join(self.sound_dir,mob_hit_sound))
+        self.fall_sound = pygame.mixer.Sound(path.join(self.sound_dir,falling_sound))
 
     #Game Loop
     def run(self):
@@ -101,7 +99,7 @@ class Game:
         self.all_sprites.update()
         #have player stand firmly on top of platform in case of collision (but only when player lands from top)
         if self.player.vel.y > 0:
-            hits = pg.sprite.spritecollide(self.player, self.platforms, False)
+            hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
                 #need to first find lowest platform they collided with, since hits does not have it ordered
                 lowest = hits[0]
@@ -172,27 +170,27 @@ class Game:
             self.playing = False
         
         #spawn bees
-        bee_now = pg.time.get_ticks()
+        bee_now = pygame.time.get_ticks()
         if bee_now - self.bee_timer > bee_spawn + random.choice([-1000,-500,0,500,1000]):
             self.bee_timer = bee_now
             Bee(self)
         #spawn bats
-        bat_now = pg.time.get_ticks()
+        bat_now = pygame.time.get_ticks()
         if bat_now - self.bat_timer > bat_spawn + random.choice([-1000,-500,0,500,1000]):
             self.bat_timer = bat_now
             Bat(self)
 
         #break_invicibility
-        invincible_now = pg.time.get_ticks()
+        invincible_now = pygame.time.get_ticks()
         if invincible_now - self.invincible_timer > player_invincible:
             self.invincible_timer = invincible_now
             self.invincible = False
         
         #mob collision
-        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+        mob_hits = pygame.sprite.spritecollide(self.player, self.mobs, False)
         if mob_hits and not self.invincible:
             #now do a mask collision to check if an actual collision occurred or if rectangles just overlapped
-            mob_hits2 = pg.sprite.spritecollide(self.player, self.mobs, False, pg.sprite.collide_mask)
+            mob_hits2 = pygame.sprite.spritecollide(self.player, self.mobs, False, pygame.sprite.collide_mask)
             if mob_hits2 and not self.invincible:
                 self.hit_sound.play()
                 self.numberOfHearts -= 1
@@ -206,14 +204,14 @@ class Game:
 
     #Deal with events for game
     def events(self):
-        for event in pg.event.get():
+        for event in pygame.event.get():
             #check if window is closed
-            if event.type == pg.QUIT:
+            if event.type == pygame.QUIT:
                 if self.playing:
                     self.playing = False
                 self.running = False
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
                     self.player.jump()
                     
     
@@ -223,28 +221,28 @@ class Game:
         self.all_sprites.draw(self.screen)
         self.draw_text(str(self.score),30,white,width/2,15)
         #after drawing everything, flip the display
-        pg.display.flip()
+        pygame.display.flip()
 
     #Show the start screen or main menu for game
     def show_start_screen(self):
-        pg.mixer.music.load(path.join(self.sound_dir,main_menu_bgmusic))
-        pg.mixer.music.play(loops=-1)
+        pygame.mixer.music.load(path.join(self.sound_dir,main_menu_bgmusic))
+        pygame.mixer.music.play(loops=-1)
         self.screen.fill(bgcolor)
         self.draw_text(main_menu_title, 48, white,width/2, height/4)
         self.draw_text(main_menu_text1, 22, white,width/2, height/2)
         self.draw_text(main_menu_text2, 22, white,width/2, height/2 + 50)
         self.draw_text(main_menu_text3, 22, white,width/2, height/2 + 100)
-        pg.display.flip()
+        pygame.display.flip()
         self.wait_for_key()
-        pg.mixer.music.fadeout(500)
+        pygame.mixer.music.fadeout(500)
 
     #Show game over screen
     def show_go_screen(self):
         #if player has quit during a level, then game over screen not needed
         if not self.running:
             return
-        pg.mixer.music.load(path.join(self.sound_dir,go_bgmusic))
-        pg.mixer.music.play(loops=-1)
+        pygame.mixer.music.load(path.join(self.sound_dir,go_bgmusic))
+        pygame.mixer.music.play(loops=-1)
         self.screen.fill(bgcolor)
         self.draw_text(go_title, 48, white,width/2, height/4)
         self.draw_text(str(go_text1) + str(self.score), 22, white,width/2, height/2)
@@ -259,20 +257,20 @@ class Game:
             self.draw_text(str(go_text2) + str(self.highscore), 22, white,width/2, height/2 + 50)
         self.draw_text(go_text3, 22, white,width/2, height/2 + 100)
         self.draw_text(go_text4, 22, white,width/2, height/2 + 150)
-        pg.display.flip()
+        pygame.display.flip()
         self.go_wait_for_key()
-        pg.mixer.music.fadeout(500)
+        pygame.mixer.music.fadeout(500)
         
     #generic function requiring player to press any key
     def wait_for_key(self):
         waiting = True
         while waiting:
             self.clock.tick(fps)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     self.running = False
                     waiting = False
-                if event.type == pg.KEYUP:
+                if event.type == pygame.KEYUP:
                     waiting = False
     
     #"wait_for_key" method adapted for game over screen
@@ -280,12 +278,12 @@ class Game:
         waiting = True
         while waiting:
             self.clock.tick(fps)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     waiting = False
                     self.running = False
-                if event.type == pg.KEYUP:
-                    if event.key == pg.K_SPACE:
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_SPACE:
                         waiting = False
                     else:
                         self.restart = True
@@ -293,7 +291,7 @@ class Game:
                         waiting = False       
 
     def draw_text(self, text, size, color, x, y):
-        font = pg.font.Font(self.font_name, size)
+        font = pygame.font.Font(self.font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x,y)
@@ -309,4 +307,4 @@ while g.running:
         g.show_start_screen()
         g.restart = False
 
-pg.quit()
+pygame.quit()

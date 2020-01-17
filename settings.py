@@ -83,8 +83,11 @@ stage_1_bgmusic = "jazzyfrenchy.ogg"
 
 
 #mob spawn settings
-bee_spawn = 5000 #every 5 seconds
-bat_spawn = 3000 
+bee_spawn = 6000 #every 6 seconds
+bat_spawn = 8000 
+barnacle_spawn = 20 #40/100 chance to spawn
+spider_spawn = 5
+mouse_spawn = 10
 
 
 #layer settings -> order in which things appear on screen

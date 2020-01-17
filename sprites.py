@@ -1,14 +1,14 @@
 # Will contain all sprite classes for my game
-import pygame as pg
+import pygame
 from settings import *
 import random
-vec = pg.math.Vector2
+vec = pygame.math.Vector2
 
-class Player(pg.sprite.Sprite):
+class Player(pygame.sprite.Sprite):
     def __init__(self,game):
         self.groups = game.all_sprites
         self._layer = player_layer
-        pg.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self,self.groups)
         self.game = game #is a reference to the current game
         #variables for animations
         self.walking = False
@@ -20,8 +20,8 @@ class Player(pg.sprite.Sprite):
         self.looking_right = True #player is initially looking right
         self.image = self.standing_frame_r
         self.rect = self.image.get_rect()
-        self.rect.center = (width / 2, height-50)
-        self.pos = vec(width/2, height-50)
+        self.rect.center = (50, height-50)
+        self.pos = vec(50, height-50)
         self.vel = vec(0,0)
         self.acc = vec(0,0)
     
@@ -29,7 +29,7 @@ class Player(pg.sprite.Sprite):
     def load_images(self):
         scaleBy = 1.5
         self.standing_frame_r = self.game.spritesheet.get_image(67,190,66,92,scaleBy)
-        self.standing_frame_l = pg.transform.flip(self.standing_frame_r,True,False)
+        self.standing_frame_l = pygame.transform.flip(self.standing_frame_r,True,False)
         self.standing_frame_r.set_colorkey(black)
         self.standing_frame_l.set_colorkey(black)
         self.walk_frames_r = [self.game.spritesheet.get_image(0,0,72,97,scaleBy),
@@ -46,9 +46,9 @@ class Player(pg.sprite.Sprite):
         self.walk_frames_l = []
         for frame in self.walk_frames_r:
             frame.set_colorkey(black)
-            self.walk_frames_l.append(pg.transform.flip(frame,True,False))
+            self.walk_frames_l.append(pygame.transform.flip(frame,True,False))
         self.jump_frame_r = self.game.spritesheet.get_image(438,93,67,94,scaleBy)
-        self.jump_frame_l = pg.transform.flip(self.jump_frame_r,True,False)
+        self.jump_frame_l = pygame.transform.flip(self.jump_frame_r,True,False)
         self.jump_frame_r.set_colorkey(black)
         self.jump_frame_l.set_colorkey(black)
         
@@ -56,7 +56,7 @@ class Player(pg.sprite.Sprite):
     def jump(self):
         # jump only if standing on a platform -> do that by checking if there is a collision 1 pixel below
         self.rect.y += 2
-        hits = pg.sprite.spritecollide(self, self.game.platforms,False)
+        hits = pygame.sprite.spritecollide(self, self.game.platforms,False)
         self.rect.y += -2
         if hits:
             self.game.jump_sound.play()
@@ -66,10 +66,10 @@ class Player(pg.sprite.Sprite):
         #do animations
         self.animate()
         self.acc = vec(0,player_gravity) #gravity basically pulls you down
-        keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT]:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
             self.acc.x = -player_acc
-        if keys[pg.K_RIGHT]:
+        if keys[pygame.K_RIGHT]:
             self.acc.x = player_acc
         
         #apply friction
@@ -90,7 +90,7 @@ class Player(pg.sprite.Sprite):
         self.rect.midbottom = self.pos
     
     def animate(self):
-        now = pg.time.get_ticks()
+        now = pygame.time.get_ticks()
         if self.vel.x != 0:
             self.walking = True
             if self.vel.x > 0:
@@ -143,14 +143,14 @@ class Player(pg.sprite.Sprite):
             self.rect.bottom = bottom
         
         #use masks for better collision detection with mobs
-        self.mask = pg.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)
         
 
-class Platform(pg.sprite.Sprite):
+class Platform(pygame.sprite.Sprite):
     def __init__(self, game, x, y, w, terrain):
         self.groups = game.all_sprites, game.platforms
         self._layer = platform_layer
-        pg.sprite.Sprite.__init__(self, self.groups)
+        pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         #all sprites for platforms
         #order will be grass, sand, stone, snow, castle
@@ -159,7 +159,7 @@ class Platform(pg.sprite.Sprite):
                   self.game.plat_spritesheet.get_image(144,648,70,70,1),
                   self.game.plat_spritesheet.get_image(288,144,70,70,1),
                   self.game.plat_spritesheet.get_image(288,792,70,70,1)]
-        self.image = pg.Surface((w*70,70))
+        self.image = pygame.Surface((w*70,70))
         for i in range(0,w):
             self.image.blit(images[terrain],(i*70,0))
         self.image.set_colorkey(black)
@@ -167,31 +167,37 @@ class Platform(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        if random.randrange(100) < barnacle_spawn:
+            Barnacle(self.game,self)
+        if random.randrange(100) < spider_spawn:
+            Spider(self.game,self)
+        if random.randrange(100) < mouse_spawn:
+            Mouse(self.game,self)
 
 #class for loading and dealing with spritesheets
 class Spritesheet:
     def __init__(self,filename):
-        self.spritesheet = pg.image.load(filename).convert()
+        self.spritesheet = pygame.image.load(filename).convert()
     
     #have multiple images in spritesheet, so this function helps get a specific image out
     def get_image(self,x,y,width,height,scaleBy):
-        image = pg.Surface((width,height))
+        image = pygame.Surface((width,height))
         image.blit(self.spritesheet,(0,0),(x,y,width,height))
         #scale it appropriately
-        image = pg.transform.scale(image, (round(width/scaleBy),round(height/scaleBy)))
+        image = pygame.transform.scale(image, (round(width/scaleBy),round(height/scaleBy)))
         return image
 
 #mob coming from the side of the screen
-class Bee(pg.sprite.Sprite):
+class Bee(pygame.sprite.Sprite):
     def __init__(self,game):
         self._layer = mob_layer
         self.groups = game.all_sprites, game.mobs
-        pg.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self,self.groups)
         self.game = game
         self.image_up_r = self.game.enemy_spritesheet.get_image(315,353,56,48,1)
         self.image_down_r = self.game.enemy_spritesheet.get_image(140,23,61,42,1)
-        self.image_up_l = pg.transform.flip(self.image_up_r,True,False)
-        self.image_down_l = pg.transform.flip(self.image_down_r,True,False)
+        self.image_up_l = pygame.transform.flip(self.image_up_r,True,False)
+        self.image_down_l = pygame.transform.flip(self.image_down_r,True,False)
         self.image_up_r.set_colorkey(black)
         self.image_down_r.set_colorkey(black)
         self.image_up_l.set_colorkey(black)
@@ -232,22 +238,22 @@ class Bee(pg.sprite.Sprite):
             else:
                 self.image = self.image_down_l
         self.rect = self.image.get_rect()
-        self.mask = pg.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect.center = tempCenter
         self.rect.y += self.vely
 
 
 #mob coming from the bottom of the screen
-class Bat(pg.sprite.Sprite):
+class Bat(pygame.sprite.Sprite):
     def __init__(self,game):
         self._layer = mob_layer
         self.groups = game.all_sprites, game.mobs
-        pg.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self,self.groups)
         self.game = game
         self.image_up_r = self.game.enemy_spritesheet.get_image(71,235,70,47,1)
         self.image_down_r = self.game.enemy_spritesheet.get_image(0,0,88,37,1)
-        self.image_up_l = pg.transform.flip(self.image_up_r,True,False)
-        self.image_down_l = pg.transform.flip(self.image_down_r,True,False)
+        self.image_up_l = pygame.transform.flip(self.image_up_r,True,False)
+        self.image_down_l = pygame.transform.flip(self.image_down_r,True,False)
         self.image_up_r.set_colorkey(black)
         self.image_down_r.set_colorkey(black)
         self.image_up_l.set_colorkey(black)
@@ -262,7 +268,7 @@ class Bat(pg.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.rect.centerx = self.spawn_location 
         #will have different speeds
-        self.velx = random.randrange(3,6)
+        self.velx = random.randrange(3,5)
         self.vely = 0
         if self.rect.centerx > width:
             self.velx *= -1
@@ -288,20 +294,158 @@ class Bat(pg.sprite.Sprite):
             else:
                 self.image = self.image_down_l
         self.rect = self.image.get_rect()
-        self.mask = pg.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect.center = tempCenter
         self.rect.y += self.vely
     
 
 #Lives remaining
-class Heart(pg.sprite.Sprite):
+class Heart(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
         self._layer = player_layer
         self.groups = game.all_sprites, game.hearts
-        pg.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self,self.groups)
         self.game = game
         self.image = self.game.heart_spritesheet.get_image(0,94,53,45,1)
         self.image.set_colorkey(black)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+
+class Barnacle(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = mob_layer
+        self.groups = game.all_sprites, game.mobs
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image1 = self.game.enemy_spritesheet.get_image(318,239,51,57,1)
+        self.image2 = self.game.enemy_spritesheet.get_image(528,220,51,58,1)
+        self.image1.set_colorkey(black)
+        self.image2.set_colorkey(black)
+        self.spawn_location = random.randrange(self.plat.rect.left+50,self.plat.rect.right-50)
+        self.image = self.image1
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location      
+        self.vely = 0
+        self.rect.bottom = self.plat.rect.top
+        self.yacc = 0.5
+    
+    def update(self):
+        self.vely += self.yacc
+        #so it bobs up and down
+        if self.vely > 3 or self.vely < -3:
+            self.yacc *= -1
+        tempCenter = self.rect.center
+        if self.yacc < 0:
+            self.image = self.image2
+        else:
+            self.image = self.image1
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.center = tempCenter
+
+
+class Spider(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = mob_layer
+        self.groups = game.all_sprites, game.mobs
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image_walk_l = self.game.enemy_spritesheet.get_image(0,90,72,51,1)
+        self.image_walk_l2 = self.game.enemy_spritesheet.get_image(0,37,77,53,1)
+        self.image_walk_r = pygame.transform.flip(self.image_walk_l,True,False)
+        self.image_walk_r2 = pygame.transform.flip(self.image_walk_l2,True,False)
+        self.image_walk_l.set_colorkey(black)
+        self.image_walk_l2.set_colorkey(black)
+        self.image_walk_r.set_colorkey(black)
+        self.image_walk_r2.set_colorkey(black)
+        self.spawn_location = self.plat.rect.centerx
+        self.image = self.image_walk_r
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location   
+        self.rect.bottom = self.plat.rect.top   
+        #will have different speeds
+        self.velx = random.randrange(2,4)
+        self.vely = 0
+        self.yacc = 0.5
+    
+    def update(self):
+        self.rect.x += self.velx
+        self.vely += self.yacc
+        #change direction
+        if self.rect.centerx > self.plat.rect.right - 50:
+            self.velx *= -1
+        if self.rect.centerx < self.plat.rect.left + 50:
+            self.velx *= -1
+        #animations
+        if self.vely > 3 or self.vely < -3:
+            self.yacc *= -1
+        tempCenter = self.rect.center
+        if self.yacc < 0:
+            if self.velx > 0:
+                self.image = self.image_walk_r2
+            else:
+                self.image = self.image_walk_l2
+        else:
+            if self.velx > 0:
+                self.image = self.image_walk_r
+            else:
+                self.image = self.image_walk_l
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.center = tempCenter
+
+
+class Mouse(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = mob_layer
+        self.groups = game.all_sprites, game.mobs
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image_walk_l = self.game.enemy_spritesheet.get_image(197,475,59,35,1)
+        self.image_walk_l2 = self.game.enemy_spritesheet.get_image(256,475,58,35,1)
+        self.image_walk_r = pygame.transform.flip(self.image_walk_l,True,False)
+        self.image_walk_r2 = pygame.transform.flip(self.image_walk_l2,True,False)
+        self.image_walk_l.set_colorkey(black)
+        self.image_walk_l2.set_colorkey(black)
+        self.image_walk_r.set_colorkey(black)
+        self.image_walk_r2.set_colorkey(black)
+        self.spawn_location = self.plat.rect.centerx
+        self.image = self.image_walk_r
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location   
+        self.rect.bottom = self.plat.rect.top   
+        #will have different speeds
+        self.velx = random.randrange(1,3)
+        self.vely = 0
+        self.yacc = 0.5
+    
+    def update(self):
+        self.rect.x += self.velx
+        self.vely += self.yacc
+        #change direction
+        if self.rect.centerx > self.plat.rect.right - 40:
+            self.velx *= -1
+        if self.rect.centerx < self.plat.rect.left + 40:
+            self.velx *= -1
+        #animations
+        if self.vely > 3 or self.vely < -3:
+            self.yacc *= -1
+        tempCenter = self.rect.center
+        if self.yacc < 0:
+            if self.velx > 0:
+                self.image = self.image_walk_r2
+            else:
+                self.image = self.image_walk_l2
+        else:
+            if self.velx > 0:
+                self.image = self.image_walk_r
+            else:
+                self.image = self.image_walk_l
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.center = tempCenter
