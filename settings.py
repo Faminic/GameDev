@@ -13,7 +13,6 @@ hsFile = "highscore.txt"
 
 
 #spritesheet settings
-#spritesheets below comes from https://opengameart.org/content/platformer-art-complete-pack-often-updated
 player_spritesheet = "player_spritesheet.png"
 platform_spritesheet = "platform_spritesheet.png"
 
@@ -68,3 +67,9 @@ go_text2 = "Highscore: "
 go_text3 = "Press space to play again"
 go_text4 = "Press any other key to return to the main menu"
 go_hs_text = "NEW HIGH SCORE!!!"
+
+#sound settings
+jumpSound = "jump.wav"
+main_menu_bgmusic = "allthat.ogg"
+go_bgmusic = "november.ogg"
+stage_1_bgmusic = "jazzyfrenchy.ogg"

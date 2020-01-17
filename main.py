@@ -4,6 +4,14 @@ from settings import *
 from sprites import *
 from os import path
 
+#The following resources were used when creating this game
+#    from https://opengameart.org/content/platformer-art-complete-pack-often-updated
+#YouTube Tutorial by https://www.youtube.com/watch?v=uWvb3QzA48c&list=PLsk-HSGFjnaG-BwZkuAOcVwWldfCLu1pq&index=1 to learn pygame fundamentals
+#Noises came from https://freesound.org/people/cabled_mess/sounds/350906/
+#grass stage background music: https://www.bensound.com/royalty-free-music/track/jazzy-frenchy
+#main menu background music: https://www.bensound.com/royalty-free-music/track/november
+#game over background music: https://www.bensound.com/royalty-free-music/track/all-that-chill-hop
+
 '''
 To do after tutorial
 - Make game wider
@@ -11,6 +19,7 @@ To do after tutorial
 - Adjust how data is saved and read
 - Reset all saved data before submission (or create a function that does it)
 - Give the game a name and add it to the main/starting screen
+- Change variable names and structure
 '''
 
 class Game:
@@ -54,15 +63,20 @@ class Game:
         self.spritesheet = Spritesheet(path.join(img_dir,player_spritesheet))
         #load platform spritesheet
         self.plat_spritesheet = Spritesheet(path.join(img_dir,platform_spritesheet))
+        #load sounds
+        self.sound_dir = path.join(self.dir, "sounds")
+        self.jump_sound = pg.mixer.Sound(path.join(self.sound_dir,jumpSound))
 
     #Game Loop
     def run(self):
+        
         self.playing = True
         while self.playing:
             self.clock.tick(fps)
             self.events()
             self.update()
             self.draw()
+        
 
     #Update the game
     def update(self):
@@ -71,9 +85,15 @@ class Game:
         if self.player.vel.y > 0:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
-                self.player.pos.y = hits[0].rect.top
-                self.player.rect.midbottom = self.player.pos
-                self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
+                #need to first find lowest platform they collided with, since hits does not have it ordered
+                lowest = hits[0]
+                for hit in hits:
+                    if hit.rect.bottom > lowest.rect.bottom:
+                        lowest = hit
+                if self.player.pos.y < lowest.rect.centery:
+                    self.player.pos.y = lowest.rect.top
+                    self.player.rect.midbottom = self.player.pos
+                    self.player.vel.y = 0 #if not 0, player would slowly fall through the platform
     
         #want to adjust camera when player reaches top
         if self.player.rect.top <= round(height /4):
@@ -115,6 +135,7 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
+                    
     
     #Draw the game
     def draw(self):
@@ -128,6 +149,8 @@ class Game:
 
     #Show the start screen or main menu for game
     def show_start_screen(self):
+        pg.mixer.music.load(path.join(self.sound_dir,main_menu_bgmusic))
+        pg.mixer.music.play(loops=-1)
         self.screen.fill(bgcolor)
         self.draw_text(main_menu_title, 48, white,width/2, height/4)
         self.draw_text(main_menu_text1, 22, white,width/2, height/2)
@@ -135,12 +158,15 @@ class Game:
         self.draw_text(main_menu_text3, 22, white,width/2, height/2 + 100)
         pg.display.flip()
         self.wait_for_key()
+        pg.mixer.music.fadeout(500)
 
     #Show game over screen
     def show_go_screen(self):
         #if player has quit during a level, then game over screen not needed
         if not self.running:
             return
+        pg.mixer.music.load(path.join(self.sound_dir,go_bgmusic))
+        pg.mixer.music.play(loops=-1)
         self.screen.fill(bgcolor)
         self.draw_text(go_title, 48, white,width/2, height/4)
         self.draw_text(str(go_text1) + str(self.score), 22, white,width/2, height/2)
@@ -157,6 +183,7 @@ class Game:
         self.draw_text(go_text4, 22, white,width/2, height/2 + 150)
         pg.display.flip()
         self.go_wait_for_key()
+        pg.mixer.music.fadeout(500)
         
     #generic function requiring player to press any key
     def wait_for_key(self):

@@ -57,6 +57,7 @@ class Player(pg.sprite.Sprite):
         hits = pg.sprite.spritecollide(self, self.game.platforms,False)
         self.rect.y += -2
         if hits:
+            self.game.jump_sound.play()
             self.vel.y = -player_jump
 
     def update(self):
@@ -154,6 +155,7 @@ class Platform(pg.sprite.Sprite):
         for i in range(0,w):
             self.image.blit(images[terrain],(i*70,0))
         self.image.set_colorkey(black)
+        #self.image.fill(green)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
