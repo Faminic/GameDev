@@ -141,6 +141,10 @@ class Player(pg.sprite.Sprite):
                 self.image = self.standing_frame_l
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
+        
+        #use masks for better collision detection with mobs
+        self.mask = pg.mask.from_surface(self.image)
+        
 
 class Platform(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, terrain):
@@ -228,6 +232,62 @@ class Bee(pg.sprite.Sprite):
             else:
                 self.image = self.image_down_l
         self.rect = self.image.get_rect()
+        self.mask = pg.mask.from_surface(self.image)
         self.rect.center = tempCenter
         self.rect.y += self.vely
-        
+
+
+#mob coming from the bottom of the screen
+class Bat(pg.sprite.Sprite):
+    def __init__(self,game):
+        self._layer = mob_layer
+        self.groups = game.all_sprites, game.mobs
+        pg.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.image_up_r = self.game.enemy_spritesheet.get_image(71,235,70,47,1)
+        self.image_down_r = self.game.enemy_spritesheet.get_image(0,0,88,37,1)
+        self.image_up_l = pg.transform.flip(self.image_up_r,True,False)
+        self.image_down_l = pg.transform.flip(self.image_down_r,True,False)
+        self.image_up_r.set_colorkey(black)
+        self.image_down_r.set_colorkey(black)
+        self.image_up_l.set_colorkey(black)
+        self.image_down_l.set_colorkey(black)
+        self.spawn_location = random.choice([-60,width+60])
+        if self.spawn_location > 0:
+            self.image = self.image_up_r
+            self.rect = self.image.get_rect()
+            self.rect.centerx = self.spawn_location
+        else:
+            self.image = self.image_up_l
+            self.rect = self.image.get_rect()
+            self.rect.centerx = self.spawn_location 
+        #will have different speeds
+        self.velx = random.randrange(3,6)
+        self.vely = 0
+        if self.rect.centerx > width:
+            self.velx *= -1
+        #bee spawns somewhere under half screen
+        self.rect.y = random.randrange(height/2)
+        self.yacc = 0.5
+
+    def update(self):
+        self.rect.x += self.velx
+        self.vely += self.yacc
+        #so it bobs up and down
+        if self.vely > 3 or self.vely < -3:
+            self.yacc *= -1
+        tempCenter = self.rect.center
+        if self.yacc < 0:
+            if self.spawn_location > 0:
+                self.image = self.image_up_r
+            else:
+                self.image = self.image_up_l
+        else:
+            if self.spawn_location > 0:
+                self.image = self.image_down_r
+            else:
+                self.image = self.image_down_l
+        self.rect = self.image.get_rect()
+        self.mask = pg.mask.from_surface(self.image)
+        self.rect.center = tempCenter
+        self.rect.y += self.vely

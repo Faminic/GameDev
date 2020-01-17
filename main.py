@@ -46,6 +46,7 @@ class Game:
         self.platforms = pg.sprite.Group() #store all platforms here so we can do collisions easily
         self.mobs = pg.sprite.Group() #store all the mobs
         self.bee_timer = 0
+        self.bat_timer = 0
         self.player = Player(self)
         #adding all starting platforms
         for plat in platform_list:
@@ -136,17 +137,25 @@ class Game:
             self.fall_sound.play()
             self.playing = False
         
-        #spawn mobs
+        #spawn bees
         bee_now = pg.time.get_ticks()
         if bee_now - self.bee_timer > bee_spawn + random.choice([-1000,-500,0,500,1000]):
             self.bee_timer = bee_now
             Bee(self)
+        #spawn bats
+        bat_now = pg.time.get_ticks()
+        if bat_now - self.bat_timer > bat_spawn + random.choice([-1000,-500,0,500,1000]):
+            self.bat_timer = bat_now
+            Bat(self)
         
         #mob collision
         mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
         if mob_hits:
-            self.hit_sound.play()
-            self.playing = False
+            #now do a mask collision to check if an actual collision occurred or if rectangles just overlapped
+            mob_hits2 = pg.sprite.spritecollide(self.player, self.mobs, False, pg.sprite.collide_mask)
+            if mob_hits2:
+                self.hit_sound.play()
+                self.playing = False
 
     #Deal with events for game
     def events(self):
