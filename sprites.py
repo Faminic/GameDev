@@ -155,10 +155,10 @@ class Platform(pygame.sprite.Sprite):
         #all sprites for platforms
         #order will be grass, sand, stone, snow, castle
         images = [self.game.plat_spritesheet.get_image(648,0,70,70,1),
-                  self.game.plat_spritesheet.get_image(360,792,70,70,1),
-                  self.game.plat_spritesheet.get_image(144,648,70,70,1),
                   self.game.plat_spritesheet.get_image(288,144,70,70,1),
-                  self.game.plat_spritesheet.get_image(288,792,70,70,1)]
+                  self.game.plat_spritesheet.get_image(288,792,70,70,1),
+                  self.game.plat_spritesheet.get_image(360,792,70,70,1),
+                  self.game.plat_spritesheet.get_image(144,648,70,70,1)]
         self.image = pygame.Surface((w*70,70))
         for i in range(0,w):
             self.image.blit(images[terrain],(i*70,0))
@@ -167,15 +167,77 @@ class Platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        #HeartItem(self.game,self)
-        '''
-        if random.randrange(100) < barnacle_spawn:
-            Barnacle(self.game,self)
-        if random.randrange(100) < spider_spawn:
-            Spider(self.game,self)
-        if random.randrange(100) < mouse_spawn:
-            Mouse(self.game,self)
-        '''
+
+        if self.game.level1:
+            if random.randrange(100) < barnacle_spawn_1:
+                Barnacle(self.game,self)
+            if random.randrange(100) < spider_spawn_1:
+                Spider(self.game,self)
+            if random.randrange(100) < mouse_spawn_1:
+                Mouse(self.game,self)
+            if random.randrange(100) < bomb_spawn_1:
+                Bomb(self.game,self)
+            if random.randrange(100) < heart_spawn_1:
+                HeartItem(self.game,self)
+            if random.randrange(100) < star_spawn_1:
+                Star(self.game,self)
+
+        if self.game.level2:
+            if random.randrange(100) < barnacle_spawn_2:
+                Barnacle(self.game,self)
+            if random.randrange(100) < spider_spawn_2:
+                Spider(self.game,self)
+            if random.randrange(100) < mouse_spawn_2:
+                Mouse(self.game,self)
+            if random.randrange(100) < bomb_spawn_2:
+                Bomb(self.game,self)
+            if random.randrange(100) < heart_spawn_2:
+                HeartItem(self.game,self)
+            if random.randrange(100) < star_spawn_2:
+                Star(self.game,self)
+
+        if self.game.level3:
+            if random.randrange(100) < barnacle_spawn_3:
+                Barnacle(self.game,self)
+            if random.randrange(100) < spider_spawn_3:
+                Spider(self.game,self)
+            if random.randrange(100) < mouse_spawn_3:
+                Mouse(self.game,self)
+            if random.randrange(100) < bomb_spawn_3:
+                Bomb(self.game,self)
+            if random.randrange(100) < heart_spawn_3:
+                HeartItem(self.game,self)
+            if random.randrange(100) < star_spawn_3:
+                Star(self.game,self)
+
+        if self.game.level4:
+            if random.randrange(100) < barnacle_spawn_4:
+                Barnacle(self.game,self)
+            if random.randrange(100) < spider_spawn_4:
+                Spider(self.game,self)
+            if random.randrange(100) < mouse_spawn_4:
+                Mouse(self.game,self)
+            if random.randrange(100) < bomb_spawn_4:
+                Bomb(self.game,self)
+            if random.randrange(100) < heart_spawn_4:
+                HeartItem(self.game,self)
+            if random.randrange(100) < star_spawn_4:
+                Star(self.game,self)
+
+        if self.game.level5:
+            if random.randrange(100) < barnacle_spawn_5:
+                Barnacle(self.game,self)
+            if random.randrange(100) < spider_spawn_5:
+                Spider(self.game,self)
+            if random.randrange(100) < mouse_spawn_5:
+                Mouse(self.game,self)
+            if random.randrange(100) < bomb_spawn_5:
+                Bomb(self.game,self)
+            if random.randrange(100) < heart_spawn_5:
+                HeartItem(self.game,self)
+            if random.randrange(100) < star_spawn_5:
+                Star(self.game,self)
+        
 
 #class for loading and dealing with spritesheets
 class Spritesheet:
@@ -486,7 +548,6 @@ class Bomb(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = self.spawn_location
         self.rect.bottom = self.plat.rect.top - 2
-        print(self.rect.width)
 
 class HeartItem(pygame.sprite.Sprite):
     def __init__(self,game,plat):
@@ -501,7 +562,6 @@ class HeartItem(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = self.spawn_location
         self.rect.bottom = self.plat.rect.top - 2
-        print(self.rect.width)
 
 class Star(pygame.sprite.Sprite):
     def __init__(self,game,plat):
@@ -516,4 +576,3 @@ class Star(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = self.spawn_location
         self.rect.bottom = self.plat.rect.top - 2
-        print(self.rect.width)

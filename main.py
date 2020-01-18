@@ -16,7 +16,11 @@ from os import path
 
 '''
 To do after tutorial
-- Incorporate Levels
+- Show Game Progression in level selection menu
+- Add sound effects for item and treasure collection
+- Spawn treasure on each platform and if one is taken, remove all
+- Have level end after second treasure is taken
+- Have a good background and music per level
 - Adjust how data is saved and read
 - Reset all saved data before submission (or create a function that does it)
 - Give the game a name and add it to the main/starting screen
@@ -34,6 +38,13 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.restart = False #will be true if player wants to return to main menu
+        #all level variables
+        self.level1 = False
+        self.level2 = False
+        self.level3 = False
+        self.level4 = False
+        self.level5 = False
+        self.platform_terrain = 0
         self.font_name = pygame.font.match_font(font_name)
         self.load_data()
 
@@ -54,11 +65,13 @@ class Game:
         self.bat_timer = 0
         self.invincible_timer = 0
         self.invincible = False
+        self.invincible_timer_item = 0
+        self.invincible_item = False
         self.numberOfHearts = 3
         self.player = Player(self)
         #adding all starting platforms
         for plat in platform_list:
-            Platform(self,*plat)
+            Platform(self,*plat,self.platform_terrain)
         for heart in range(self.numberOfHearts):
             Heart(self,53*(heart)+10,10)
         self.run()
@@ -150,24 +163,24 @@ class Game:
                 self.left_plat_height = random.randrange(-45,-30)
                 Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
                          self.left_plat_height,
-                         platWidth,0)
+                         platWidth,self.platform_terrain)
                 self.plat_spawn_counter += 1
             elif self.plat_spawn_counter == 1:
                 self.mid_plat_height = random.randrange(-45,-30)
                 Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
                          self.mid_plat_height,
-                         platWidth,0)
+                         platWidth,self.platform_terrain)
                 self.plat_spawn_counter += 1
             elif self.plat_spawn_counter == 2:
                 self.right_plat_height = random.randrange(-45,-30)
                 Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
                          self.right_plat_height,
-                         platWidth,0)
+                         platWidth,self.platform_terrain)
                 self.plat_spawn_counter += 1
             else:
                 Platform(self,random.randrange(widthCutoff,2*widthCutoff),
                          min(self.left_plat_height,self.mid_plat_height,self.right_plat_height) -30,
-                         platWidth,0)
+                         platWidth,self.platform_terrain)
                 self.plat_spawn_counter = 0
         
         #game over
@@ -181,28 +194,29 @@ class Game:
             self.playing = False
         
         #spawn bees
-        bee_now = pygame.time.get_ticks()
-        if bee_now - self.bee_timer > bee_spawn + random.choice([-1000,-500,0,500,1000]):
-            self.bee_timer = bee_now
-            Bee(self)
+        self.spawn_bees()
+
         #spawn bats
-        bat_now = pygame.time.get_ticks()
-        if bat_now - self.bat_timer > bat_spawn + random.choice([-1000,-500,0,500,1000]):
-            self.bat_timer = bat_now
-            Bat(self)
+        self.spawn_bats()
 
         #break_invicibility
         invincible_now = pygame.time.get_ticks()
         if invincible_now - self.invincible_timer > player_invincible:
             self.invincible_timer = invincible_now
             self.invincible = False
+
+        #break_invicibility from item
+        invincible_now_item = pygame.time.get_ticks()
+        if invincible_now_item - self.invincible_timer_item > invincible_item_duration:
+            self.invincible_timer_item = invincible_now_item
+            self.invincible_item = False
         
         #mob collision
         mob_hits = pygame.sprite.spritecollide(self.player, self.mobs, False)
-        if mob_hits and not self.invincible:
+        if mob_hits and not self.invincible and not self.invincible_item:
             #now do a mask collision to check if an actual collision occurred or if rectangles just overlapped
             mob_hits2 = pygame.sprite.spritecollide(self.player, self.mobs, False, pygame.sprite.collide_mask)
-            if mob_hits2 and not self.invincible:
+            if mob_hits2 and not self.invincible and not self.invincible_item:
                 self.hit_sound.play()
                 self.numberOfHearts -= 1
                 for heart in self.hearts:
@@ -212,6 +226,23 @@ class Game:
                 if self.numberOfHearts == 0:
                     self.playing = False
                 self.invincible = True
+        
+        #item collision
+        item_hits = pygame.sprite.spritecollide(self.player, self.items, False)
+        if item_hits:
+            for item in item_hits:
+                if item.rect.width == 70: #so it is a bomb
+                    for mob in self.mobs:
+                        mob.kill()
+                if item.rect.width == 71: #so it is a star
+                    self.invincible_item = True
+                if item.rect.width == 53: #so it is a heart
+                    self.numberOfHearts += 1
+                    for heart in self.hearts:
+                        heart.kill()
+                    for heart in range(self.numberOfHearts):
+                        Heart(self,53*(heart)+10,10)
+                item.kill()
 
     #Deal with events for game
     def events(self):
@@ -245,7 +276,36 @@ class Game:
         self.draw_text(main_menu_text3, 22, white,width/2, height/2 + 100)
         pygame.display.flip()
         self.wait_for_key()
+ 
+        self.screen.fill(bgcolor)
+        self.draw_text(ls_title, 40, white,width/2, 20)
+        self.draw_text(ls1_title, 20, white,width/4, 70)
+        self.draw_text(ls1_text, 20, white,width/4, 100)
+        self.draw_text(ls2_title, 20, white,width*3/4, 70)
+        self.draw_text(ls2_text, 20, white,width*3/4, 100)
+        self.draw_text(ls3_title, 20, white,width/4, 140)
+        self.draw_text(ls3_text, 20, white,width/4, 170)
+        self.draw_text(ls4_title, 20, white,width*3/4, 140)
+        self.draw_text(ls4_text, 20, white,width*3/4, 170)
+        self.draw_text(ls5_title, 20, white,width/2,210)
+        self.draw_text(ls5_text, 20, white,width/2, 240)
+
+        self.draw_text(ls_instructions_title, 40, white,width/2, 290)
+        self.draw_text(ls_instructions_text1, 20, white,width/2, 340)
+        self.draw_text(ls_instructions_text2, 20, white,width/2, 370)
+        self.draw_text(ls_instructions_text3, 20, white,width/2, 400)
+        self.draw_text(ls_instructions_text4, 20, white,width/2, 430)
+        self.draw_text(ls_instructions_text5, 20, white,width/2, 460)
+        self.draw_text(ls_instructions_text6, 20, white,width/2, 490)
+        self.draw_text(ls_instructions_text7, 20, white,width/2, 520)
+        self.draw_text(ls_instructions_text8, 20, white,width/2, 550)
+        self.draw_text(ls_instructions_text9, 20, white,width/2, 580)
+        pygame.display.flip()
+        self.ls_wait_for_key()
+
         pygame.mixer.music.fadeout(500)
+
+        
 
     #Show game over screen
     def show_go_screen(self):
@@ -269,6 +329,7 @@ class Game:
         self.draw_text(go_text3, 22, white,width/2, height/2 + 100)
         self.draw_text(go_text4, 22, white,width/2, height/2 + 150)
         pygame.display.flip()
+        self.wait_for_key()
         self.go_wait_for_key()
         pygame.mixer.music.fadeout(500)
         
@@ -292,14 +353,121 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     waiting = False
+                    self.restart_levels()
                     self.running = False
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         waiting = False
                     else:
                         self.restart = True
+                        self.restart_levels()
                         self.playing = False
-                        waiting = False       
+                        waiting = False    
+
+    #level selection adapted wait for key
+    def ls_wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.clock.tick(fps)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    waiting = False
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_1:
+                        self.restart_levels()
+                        self.level1 = True
+                        self.platform_terrain = 0
+                        waiting = False
+                    if event.key == pygame.K_2:
+                        self.restart_levels()
+                        self.level2 = True
+                        self.platform_terrain = 1
+                        waiting = False
+                    if event.key == pygame.K_3:
+                        self.restart_levels()
+                        self.level3 = True
+                        self.platform_terrain = 2
+                        waiting = False
+                    if event.key == pygame.K_4:
+                        self.restart_levels()
+                        self.level4 = True
+                        self.platform_terrain = 3
+                        waiting = False
+                    if event.key == pygame.K_5:
+                        self.restart_levels()
+                        self.level5 = True
+                        self.platform_terrain = 4
+                        waiting = False
+    
+    def spawn_bees(self):
+        if self.level1:
+            bee_now = pygame.time.get_ticks()
+            if bee_now - self.bee_timer > bee_spawn_1 + random.choice([-1000,-500,0,500,1000]):
+                self.bee_timer = bee_now
+                Bee(self)
+        elif self.level2:
+            bee_now = pygame.time.get_ticks()
+            if bee_now - self.bee_timer > bee_spawn_2 + random.choice([-1000,-500,0,500,1000]):
+                self.bee_timer = bee_now
+                Bee(self)
+        elif self.level3:
+            bee_now = pygame.time.get_ticks()
+            if bee_now - self.bee_timer > bee_spawn_3 + random.choice([-1000,-500,0,500,1000]):
+                self.bee_timer = bee_now
+                Bee(self)
+        elif self.level4:
+            bee_now = pygame.time.get_ticks()
+            if bee_now - self.bee_timer > bee_spawn_4 + random.choice([-1000,-500,0,500,1000]):
+                self.bee_timer = bee_now
+                Bee(self)
+        elif self.level5:
+            bee_now = pygame.time.get_ticks()
+            if bee_now - self.bee_timer > bee_spawn_5 + random.choice([-1000,-500,0,500,1000]):
+                self.bee_timer = bee_now
+                Bee(self)
+
+    def spawn_bats(self):
+        if self.level1:
+            '''
+            bat_now = pygame.time.get_ticks()
+            if bat_now - self.bat_timer > bat_spawn_1 + random.choice([-1000,-500,0,500,1000]):
+                self.bat_timer = bat_now
+                Bat(self)
+            '''
+            pass
+        if self.level2:
+            '''
+            bat_now = pygame.time.get_ticks()
+            if bat_now - self.bat_timer > bat_spawn_2 + random.choice([-1000,-500,0,500,1000]):
+                self.bat_timer = bat_now
+                Bat(self)
+            '''
+            pass
+        if self.level3:
+            bat_now = pygame.time.get_ticks()
+            if bat_now - self.bat_timer > bat_spawn_3 + random.choice([-1000,-500,0,500,1000]):
+                self.bat_timer = bat_now
+                Bat(self)
+        if self.level4:
+            bat_now = pygame.time.get_ticks()
+            if bat_now - self.bat_timer > bat_spawn_4 + random.choice([-1000,-500,0,500,1000]):
+                self.bat_timer = bat_now
+                Bat(self)
+        if self.level5:
+            bat_now = pygame.time.get_ticks()
+            if bat_now - self.bat_timer > bat_spawn_5 + random.choice([-1000,-500,0,500,1000]):
+                self.bat_timer = bat_now
+                Bat(self)
+    
+    #resetting all level variables
+    def restart_levels(self):
+        self.level1 = False
+        self.level2 = False
+        self.level3 = False
+        self.level4 = False
+        self.level5 = False
+        self.platform_terrain = 0
 
     def draw_text(self, text, size, color, x, y):
         font = pygame.font.Font(self.font_name, size)
