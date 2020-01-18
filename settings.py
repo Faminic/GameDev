@@ -6,6 +6,8 @@ width = 900
 height = 750
 fps = 60
 font_name = "arial"
+silver_coin_min = 50 #number of points needed to get silver coin
+gold_coin_min = 100 #number of points needed to get gold coin
 
 
 #savefile settings
@@ -17,6 +19,7 @@ player_spritesheet = "player_spritesheet.png"
 platform_spritesheet = "platform_spritesheet.png"
 enemy1_spritesheet = "enemies_spritesheet.png"
 hud_spritesheet = "hud_spritesheet.png"
+items_spritesheet = "items_spritesheet.png"
 
 
 
@@ -91,7 +94,8 @@ mouse_spawn = 10
 
 
 #layer settings -> order in which things appear on screen
-player_layer = 3
+player_layer = 4
+item_layer = 3
 mob_layer = 2
 platform_layer = 1
 background_layer = 0

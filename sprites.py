@@ -167,12 +167,15 @@ class Platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        #HeartItem(self.game,self)
+        '''
         if random.randrange(100) < barnacle_spawn:
             Barnacle(self.game,self)
         if random.randrange(100) < spider_spawn:
             Spider(self.game,self)
         if random.randrange(100) < mouse_spawn:
             Mouse(self.game,self)
+        '''
 
 #class for loading and dealing with spritesheets
 class Spritesheet:
@@ -449,3 +452,68 @@ class Mouse(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.center = tempCenter
+
+class Treasure(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = item_layer
+        self.groups = game.all_sprites, game.treasure
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image_silver = self.game.item_spritesheet.get_image(288,288,70,70,1)
+        self.image_gold = self.game.item_spritesheet.get_image(288,360,70,70,1)
+        self.image_silver.set_colorkey(black)
+        self.image_gold.set_colorkey(black)
+        self.spawn_location = self.plat.rect.centerx
+        if(self.game.score >= gold_coin_min):
+            self.image = self.image_gold
+        else:
+            self.image = self.image_silver
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location   
+        self.rect.bottom = self.plat.rect.top - 2
+
+class Bomb(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = item_layer
+        self.groups = game.all_sprites, game.items
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image = self.game.item_spritesheet.get_image(432,432,70,70,1)
+        self.image.set_colorkey(black)
+        self.spawn_location = self.plat.rect.centerx
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location
+        self.rect.bottom = self.plat.rect.top - 2
+        print(self.rect.width)
+
+class HeartItem(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = item_layer
+        self.groups = game.all_sprites, game.items
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image = self.game.heart_spritesheet.get_image(0,94,53,45,1)
+        self.image.set_colorkey(black)
+        self.spawn_location = self.plat.rect.centerx
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location
+        self.rect.bottom = self.plat.rect.top - 2
+        print(self.rect.width)
+
+class Star(pygame.sprite.Sprite):
+    def __init__(self,game,plat):
+        self._layer = item_layer
+        self.groups = game.all_sprites, game.items
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.plat = plat
+        self.image = self.game.item_spritesheet.get_image(504,288,71,70,1)
+        self.image.set_colorkey(black)
+        self.spawn_location = self.plat.rect.centerx
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.spawn_location
+        self.rect.bottom = self.plat.rect.top - 2
+        print(self.rect.width)

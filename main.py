@@ -44,6 +44,8 @@ class Game:
         self.platforms = pygame.sprite.Group() #store all platforms here so we can do collisions easily
         self.mobs = pygame.sprite.Group() #store all the mobs
         self.hearts = pygame.sprite.Group() #stores all the hearts
+        self.items = pygame.sprite.Group() #stores all the items
+        self.treasure = pygame.sprite.Group() #stores all the treasure
         self.plat_spawn_counter = 0 #used to determine where platforms spawn
         self.mid_plat_height = 0
         self.left_plat_height = 0
@@ -79,6 +81,8 @@ class Game:
         self.enemy_spritesheet = Spritesheet(path.join(img_dir,enemy1_spritesheet))
         #load heart spritesheet
         self.heart_spritesheet = Spritesheet(path.join(img_dir,hud_spritesheet))
+        #load items spritesheet
+        self.item_spritesheet = Spritesheet(path.join(img_dir,items_spritesheet))
         #load sounds
         self.sound_dir = path.join(self.dir, "sounds")
         self.jump_sound = pygame.mixer.Sound(path.join(self.sound_dir,jumpSound))
@@ -129,31 +133,38 @@ class Game:
                 #now need to kill items that are pushed down
                 if mob.rect.top >= height:
                     mob.kill()
-        
+            for coin in self.treasure:
+                coin.rect.y += max(abs(self.player.vel.y),2)
+                if coin.rect.top >= height:
+                    coin.kill()
+            for item in self.items:
+                item.rect.y += max(abs(self.player.vel.y),2)
+                if item.rect.top >= height:
+                    item.kill()
+
         #spawn new platforms to replace lost ones
         widthCutoff = width/3
         while len(self.platforms) < 7:
             platWidth = random.randrange(plat_width_min,plat_width_max)
             if self.plat_spawn_counter == 0:
-                self.left_plat_height = random.randrange(-55,-30)
+                self.left_plat_height = random.randrange(-45,-30)
                 Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
                          self.left_plat_height,
                          platWidth,0)
                 self.plat_spawn_counter += 1
             elif self.plat_spawn_counter == 1:
-                self.mid_plat_height = random.randrange(-55,-30)
+                self.mid_plat_height = random.randrange(-45,-30)
                 Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
                          self.mid_plat_height,
                          platWidth,0)
                 self.plat_spawn_counter += 1
             elif self.plat_spawn_counter == 2:
-                self.right_plat_height = random.randrange(-55,-30)
+                self.right_plat_height = random.randrange(-45,-30)
                 Platform(self,random.randrange(self.plat_spawn_counter*widthCutoff,(self.plat_spawn_counter+1)*widthCutoff-(platWidth*70)),
                          self.right_plat_height,
                          platWidth,0)
                 self.plat_spawn_counter += 1
             else:
-
                 Platform(self,random.randrange(widthCutoff,2*widthCutoff),
                          min(self.left_plat_height,self.mid_plat_height,self.right_plat_height) -30,
                          platWidth,0)
