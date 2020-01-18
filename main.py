@@ -10,6 +10,7 @@ from os import path
 #Jump Noise came from https://freesound.org/people/cabled_mess/sounds/350906/
 #Fall Noise came from https://freesound.org/people/cabled_mess/sounds/371451/
 #Hit Noise came from https://freesound.org/people/cabled_mess/sounds/350984/
+#Item/Treasure Pickup Noise came from https://freesound.org/people/cabled_mess/sounds/350876/
 #grass stage background music: https://www.bensound.com/royalty-free-music/track/jazzy-frenchy
 #main menu background music: https://www.bensound.com/royalty-free-music/track/november
 #game over background music: https://www.bensound.com/royalty-free-music/track/all-that-chill-hop
@@ -17,14 +18,13 @@ from os import path
 '''
 To do after tutorial
 - Show Game Progression in level selection menu
-- Add sound effects for item and treasure collection
-- Spawn treasure on each platform and if one is taken, remove all
-- Have level end after second treasure is taken
+- Adjust item/mob spawn rate
+- Need level clear music
 - Have a good background and music per level
-- Adjust how data is saved and read
 - Reset all saved data before submission (or create a function that does it)
 - Give the game a name and add it to the main/starting screen
 - Change variable names and structure
+- Fill in Word Document
 - Test the game on the uni system
 '''
 
@@ -38,12 +38,64 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.restart = False #will be true if player wants to return to main menu
+        self.cleared = False #will be true if player has cleared a level
         #all level variables
         self.level1 = False
         self.level2 = False
         self.level3 = False
         self.level4 = False
         self.level5 = False
+        #saved progress of treasures -> store these in a save file
+        with open("treasures_cleared.txt") as f:
+            treasures_cleared = [int(i) for i in f]
+        if treasures_cleared[0] == 1:
+            self.level1_silver = True
+        else:
+            self.level1_silver = False
+        if treasures_cleared[1] == 1:
+            self.level1_gold = True
+        else:
+            self.level1_gold = False
+        if treasures_cleared[2] == 1:
+            self.level2_silver = True
+        else:
+            self.level2_silver = False
+        if treasures_cleared[3] == 1:
+            self.level2_gold = True
+        else:
+            self.level2_gold = False
+        if treasures_cleared[4] == 1:
+            self.level3_silver = True
+        else:
+            self.level3_silver = False
+        if treasures_cleared[5] == 1:
+            self.level3_gold = True
+        else:
+            self.level3_gold = False
+        if treasures_cleared[6] == 1:
+            self.level4_silver = True
+        else:
+            self.level4_silver = False
+        if treasures_cleared[7] == 1:
+            self.level4_gold = True
+        else:
+            self.level4_gold = False
+        if treasures_cleared[8] == 1:
+            self.level5_silver = True
+        else:
+            self.level5_silver = False
+        if treasures_cleared[9] == 1:
+            self.level5_gold = True
+        else:
+            self.level5_gold = False
+        #saved progress of highscores -> store these in a save file
+        with open("highscore.txt") as f:
+            highscores = [int(i) for i in f]
+        self.highscore1 = highscores[0]
+        self.highscore2 = highscores[1]
+        self.highscore3 = highscores[2]
+        self.highscore4 = highscores[3]
+        self.highscore5 = highscores[4]
         self.platform_terrain = 0
         self.font_name = pygame.font.match_font(font_name)
         self.load_data()
@@ -74,18 +126,33 @@ class Game:
             Platform(self,*plat,self.platform_terrain)
         for heart in range(self.numberOfHearts):
             Heart(self,53*(heart)+10,10)
+        #choose correct highscore
+        if self.level1:
+            self.highscore = self.highscore1
+            self.silver_acquired = self.level1_silver
+            self.gold_acquired = self.level1_gold
+        elif self.level2:
+            self.highscore = self.highscore2
+            self.silver_acquired = self.level2_silver
+            self.gold_acquired = self.level2_gold
+        elif self.level3:
+            self.highscore = self.highscore3
+            self.silver_acquired = self.level3_silver
+            self.gold_acquired = self.level3_gold
+        elif self.level4:
+            self.highscore = self.highscore4
+            self.silver_acquired = self.level4_silver
+            self.gold_acquired = self.level4_gold
+        elif self.level5:
+            self.highscore = self.highscore5
+            self.silver_acquired = self.level5_silver
+            self.gold_acquired = self.level5_gold
         self.run()
 
     #used to load all necessary data
     def load_data(self):
-        #load high score
         self.dir = path.dirname(__file__)
         img_dir = path.join(self.dir, "images")
-        with open(path.join(self.dir,hsFile), 'r') as f:
-            try:
-                self.highscore = int(f.read())
-            except:
-                self.highscore = 0
         #load player spritesheet
         self.spritesheet = Spritesheet(path.join(img_dir,player_spritesheet))
         #load platform spritesheet
@@ -101,6 +168,7 @@ class Game:
         self.jump_sound = pygame.mixer.Sound(path.join(self.sound_dir,jumpSound))
         self.hit_sound = pygame.mixer.Sound(path.join(self.sound_dir,mob_hit_sound))
         self.fall_sound = pygame.mixer.Sound(path.join(self.sound_dir,falling_sound))
+        self.item_sound = pygame.mixer.Sound(path.join(self.sound_dir,item_sound))
 
     #Game Loop
     def run(self):
@@ -111,6 +179,18 @@ class Game:
             self.update()
             self.draw()
         
+    def update_highscore_savefile(self):
+        self.highscores=[self.highscore1,self.highscore2,self.highscore3,self.highscore4,self.highscore5]
+        with open(path.join(self.dir, "highscore.txt"),'w') as f:
+            for score in self.highscores:
+                f.write(str(score)+"\n")
+
+    def update_level_cleared_savefile(self):
+        self.treasures_cleared=[int(self.level1_silver),int(self.level1_gold),int(self.level2_silver),int(self.level2_gold),int(self.level3_silver),int(self.level3_gold),int(self.level4_silver),int(self.level4_gold),int(self.level5_silver),int(self.level5_gold)]
+        with open(path.join(self.dir, "treasures_cleared.txt"),'w') as f:
+            for level in self.treasures_cleared:
+                f.write(str(level)+"\n")
+
     #Update the game
     def update(self):
         self.all_sprites.update()
@@ -230,6 +310,7 @@ class Game:
         #item collision
         item_hits = pygame.sprite.spritecollide(self.player, self.items, False)
         if item_hits:
+            self.item_sound.play()
             for item in item_hits:
                 if item.rect.width == 70: #so it is a bomb
                     for mob in self.mobs:
@@ -243,6 +324,40 @@ class Game:
                     for heart in range(self.numberOfHearts):
                         Heart(self,53*(heart)+10,10)
                 item.kill()
+        
+        #treasure collision
+        treasure_hits = pygame.sprite.spritecollide(self.player, self.treasure, False)
+        if treasure_hits:
+            self.item_sound.play()
+            if self.score < 100:
+                self.silver_acquired = True
+            else:
+                self.gold_acquired = True
+            for coin in self.treasure:
+                coin.kill()
+        #if both treasures are secured, then level is cleared
+        if self.level1:
+            if self.silver_acquired and self.gold_acquired and not self.level1_silver and not self.level1_gold:
+                self.cleared = True
+                self.playing = False
+        if self.level2:
+            if self.silver_acquired and self.gold_acquired and not self.level2_silver and not self.level2_gold:
+                self.cleared = True
+                self.playing = False
+        if self.level3:
+            if self.silver_acquired and self.gold_acquired and not self.level3_silver and not self.level3_gold:
+                self.cleared = True
+                self.playing = False
+        if self.level4:
+            if self.silver_acquired and self.gold_acquired and not self.level4_silver and not self.level4_gold:
+                self.cleared = True
+                self.playing = False
+        if self.level5:
+            if self.silver_acquired and self.gold_acquired and not self.level5_silver and not self.level5_gold:
+                self.cleared = True
+                self.playing = False
+
+
 
     #Deal with events for game
     def events(self):
@@ -276,32 +391,33 @@ class Game:
         self.draw_text(main_menu_text3, 22, white,width/2, height/2 + 100)
         pygame.display.flip()
         self.wait_for_key()
- 
-        self.screen.fill(bgcolor)
-        self.draw_text(ls_title, 40, white,width/2, 20)
-        self.draw_text(ls1_title, 20, white,width/4, 70)
-        self.draw_text(ls1_text, 20, white,width/4, 100)
-        self.draw_text(ls2_title, 20, white,width*3/4, 70)
-        self.draw_text(ls2_text, 20, white,width*3/4, 100)
-        self.draw_text(ls3_title, 20, white,width/4, 140)
-        self.draw_text(ls3_text, 20, white,width/4, 170)
-        self.draw_text(ls4_title, 20, white,width*3/4, 140)
-        self.draw_text(ls4_text, 20, white,width*3/4, 170)
-        self.draw_text(ls5_title, 20, white,width/2,210)
-        self.draw_text(ls5_text, 20, white,width/2, 240)
 
-        self.draw_text(ls_instructions_title, 40, white,width/2, 290)
-        self.draw_text(ls_instructions_text1, 20, white,width/2, 340)
-        self.draw_text(ls_instructions_text2, 20, white,width/2, 370)
-        self.draw_text(ls_instructions_text3, 20, white,width/2, 400)
-        self.draw_text(ls_instructions_text4, 20, white,width/2, 430)
-        self.draw_text(ls_instructions_text5, 20, white,width/2, 460)
-        self.draw_text(ls_instructions_text6, 20, white,width/2, 490)
-        self.draw_text(ls_instructions_text7, 20, white,width/2, 520)
-        self.draw_text(ls_instructions_text8, 20, white,width/2, 550)
-        self.draw_text(ls_instructions_text9, 20, white,width/2, 580)
-        pygame.display.flip()
-        self.ls_wait_for_key()
+        if self.running: 
+            self.screen.fill(bgcolor)
+            self.draw_text(ls_title, 40, white,width/2, 20)
+            self.draw_text(ls1_title, 20, white,width/4, 70)
+            self.draw_text(ls1_text, 20, white,width/4, 100)
+            self.draw_text(ls2_title, 20, white,width*3/4, 70)
+            self.draw_text(ls2_text, 20, white,width*3/4, 100)
+            self.draw_text(ls3_title, 20, white,width/4, 140)
+            self.draw_text(ls3_text, 20, white,width/4, 170)
+            self.draw_text(ls4_title, 20, white,width*3/4, 140)
+            self.draw_text(ls4_text, 20, white,width*3/4, 170)
+            self.draw_text(ls5_title, 20, white,width/2,210)
+            self.draw_text(ls5_text, 20, white,width/2, 240)
+
+            self.draw_text(ls_instructions_title, 40, white,width/2, 290)
+            self.draw_text(ls_instructions_text1, 20, white,width/2, 340)
+            self.draw_text(ls_instructions_text2, 20, white,width/2, 370)
+            self.draw_text(ls_instructions_text3, 20, white,width/2, 400)
+            self.draw_text(ls_instructions_text4, 20, white,width/2, 430)
+            self.draw_text(ls_instructions_text5, 20, white,width/2, 460)
+            self.draw_text(ls_instructions_text6, 20, white,width/2, 490)
+            self.draw_text(ls_instructions_text7, 20, white,width/2, 520)
+            self.draw_text(ls_instructions_text8, 20, white,width/2, 550)
+            self.draw_text(ls_instructions_text9, 20, white,width/2, 580)
+            pygame.display.flip()
+            self.ls_wait_for_key()
 
         pygame.mixer.music.fadeout(500)
 
@@ -320,10 +436,18 @@ class Game:
         #update highscore if necessary
         if self.score > self.highscore:
             self.highscore = self.score
+            if(self.level1):
+                self.highscore1 = self.highscore
+            elif(self.level2):
+                self.highscore2 = self.highscore
+            elif(self.level3):
+                self.highscore3 = self.highscore
+            elif(self.level4):
+                self.highscore4 = self.highscore
+            elif(self.level5):
+                self.highscore5 = self.highscore
+            self.update_highscore_savefile()
             self.draw_text(go_hs_text, 22, white,width/2, height/2 + 50)
-            #update file
-            with open(path.join(self.dir, hsFile),'w') as f:
-                f.write(str(self.score))
         else:
             self.draw_text(str(go_text2) + str(self.highscore), 22, white,width/2, height/2 + 50)
         self.draw_text(go_text3, 22, white,width/2, height/2 + 100)
@@ -332,7 +456,52 @@ class Game:
         self.wait_for_key()
         self.go_wait_for_key()
         pygame.mixer.music.fadeout(500)
-        
+    
+    #Show level cleared screen
+    def show_cleared_screen(self):
+        pygame.mixer.music.load(path.join(self.sound_dir,main_menu_bgmusic))
+        pygame.mixer.music.play(loops=-1)
+        #need to update savefiles
+        if self.level1:
+            self.level1_silver = True
+            self.level1_gold = True
+        elif self.level2:
+            self.level2_silver = True
+            self.level2_gold = True
+        elif self.level3:
+            self.level3_silver = True
+            self.level3_gold = True
+        elif self.level4:
+            self.level4_silver = True
+            self.level4_gold = True
+        elif self.level5:
+            self.level5_silver = True
+            self.level5_gold = True
+        self.update_level_cleared_savefile()
+        #update highscore if necessary
+        if self.score > self.highscore:
+            self.highscore = self.score
+            if(self.level1):
+                self.highscore1 = self.highscore
+            elif(self.level2):
+                self.highscore2 = self.highscore
+            elif(self.level3):
+                self.highscore3 = self.highscore
+            elif(self.level4):
+                self.highscore4 = self.highscore
+            elif(self.level5):
+                self.highscore5 = self.highscore
+            self.update_highscore_savefile()
+        self.screen.fill(bgcolor)
+        self.draw_text(lc_title, 48, white,width/2, height/4)
+        self.draw_text(lc_text1, 22, white,width/2, height/2)        
+        self.draw_text(lc_text2, 22, white,width/2, height/2 + 100)
+        pygame.display.flip()
+        self.wait_for_key()
+        self.wait_for_key()
+        pygame.mixer.music.fadeout(500)
+        self.show_start_screen()
+
     #generic function requiring player to press any key
     def wait_for_key(self):
         waiting = True
@@ -480,7 +649,11 @@ g = Game()
 g.show_start_screen()
 while g.running:
     g.new()
-    g.show_go_screen()
+    if g.cleared:
+        g.cleared = False
+        g.show_cleared_screen()
+    else:
+        g.show_go_screen()
     #so goes back to main screen if any key except space pressed in game over screen
     if g.restart:
         g.show_start_screen()

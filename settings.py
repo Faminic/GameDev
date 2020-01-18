@@ -8,7 +8,7 @@ fps = 60
 font_name = "arial"
 silver_coin_min = 50 #number of points needed to get silver coin
 gold_coin_min = 100 #number of points needed to get gold coin
-invincible_item_duration = 8000
+invincible_item_duration = 5000
 
 
 #savefile settings
@@ -31,8 +31,9 @@ red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
-lightblue = (0,155,155)
-bgcolor = lightblue
+strong_blue = (14,76,146)
+durham_color = (114,36,108)
+bgcolor = strong_blue
 
 
 #player properties
@@ -76,11 +77,16 @@ go_text3 = "Press space to play again"
 go_text4 = "Press any other key to return to the main menu"
 go_hs_text = "NEW HIGH SCORE!!!"
 
+#level cleared text
+lc_title = "Level Cleared"
+lc_text1 = "Congratulations, you have cleared this level"
+lc_text2 = "Press any button to return to the main menu"
 
 #sound settings
 jumpSound = "jump.wav"
 mob_hit_sound = "hit.wav"
 falling_sound = "fall.wav"
+item_sound = "item.wav"
 main_menu_bgmusic = "allthat.ogg"
 go_bgmusic = "november.ogg"
 stage_1_bgmusic = "jazzyfrenchy.ogg"
@@ -111,7 +117,7 @@ barnacle_spawn_1 = 20
 spider_spawn_1 = 0
 mouse_spawn_1 = 0
 
-heart_spawn_1 = 5
+heart_spawn_1 = 2
 bomb_spawn_1 = 0
 star_spawn_1 = 0
 
@@ -122,9 +128,11 @@ barnacle_spawn_2 = 30
 spider_spawn_2 = 0
 mouse_spawn_2 = 10
 
-heart_spawn_2 = 5
-bomb_spawn_2 = 5
-star_spawn_2 = 5
+heart_spawn_2 = 3
+bomb_spawn_2 = 1
+star_spawn_2 = 0
+
+icy_player_friction = -0.08
 
 #stage 3 -> Kingsgate Bridge
 bee_spawn_3 = 8000 
@@ -133,9 +141,11 @@ barnacle_spawn_3 = 20
 spider_spawn_3 = 0
 mouse_spawn_3 = 15
 
-heart_spawn_3 = 5
-bomb_spawn_3 = 10
-star_spawn_3 = 10
+heart_spawn_3 = 4
+bomb_spawn_3 = 2
+star_spawn_3 = 2
+
+player_sidewind = - 1
 
 #stage 4 -> Cathedral
 bee_spawn_4 = 10000 
@@ -144,20 +154,20 @@ barnacle_spawn_4 = 10
 spider_spawn_4 = 5
 mouse_spawn_4 = 15
 
-heart_spawn_4 = 10
-bomb_spawn_4 = 15
-star_spawn_4 = 10
+heart_spawn_4 = 5
+bomb_spawn_4 = 5
+star_spawn_4 = 4
 
 #stage 5 -> Bill Bryson
 bee_spawn_5 = 12000
 bat_spawn_5 = 10000 
 barnacle_spawn_5 = 10
-spider_spawn_5 = 15
+spider_spawn_5 = 6
 mouse_spawn_5 = 10
 
-heart_spawn_5 = 15
-bomb_spawn_5 = 20
-star_spawn_5 = 10
+heart_spawn_5 = 6
+bomb_spawn_5 = 7
+star_spawn_5 = 6
 
 
 #Level Selection Text
@@ -167,7 +177,7 @@ ls_instructions_text2 = "Treasure 1: A silver coin that appears after you reach 
 ls_instructions_text3 = "Treasure 2: A gold coin that appears after you reach a score of 100"
 
 ls_instructions_text4 = "The following items may spawn: Extra Heart, Bomb to kill all"
-ls_instructions_text5 = "enemies on screen and Star to be immune to enemies for 8 seconds"
+ls_instructions_text5 = "enemies on screen and Star to be immune to enemies for 5 seconds"
 ls_instructions_text6 = "You can exit the screen on the left and appear on the right and vice versa"
 ls_instructions_text7 = "Higher levels are harder, so you are adivsed to complete them in order"
 ls_instructions_text8 = "Once the gold coin is collected, the level is completed and you return to the main menu"

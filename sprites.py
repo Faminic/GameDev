@@ -73,7 +73,14 @@ class Player(pygame.sprite.Sprite):
             self.acc.x = player_acc
         
         #apply friction
-        self.acc.x += self.vel.x * player_friction
+        #on ice level, player slides more
+        if(self.game.level2):
+            self.acc.x += self.vel.x * icy_player_friction
+        else:
+            self.acc.x += self.vel.x * player_friction
+        #on kingsgate bridge, player pushed to the left by sidewind
+        if(self.game.level3):
+            self.pos.x += player_sidewind
         #actual motion equation
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
@@ -167,6 +174,11 @@ class Platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        #spawn treasures
+        if self.game.score > 50 and not self.game.silver_acquired:
+            Treasure(self.game,self)
+        elif self.game.score > 100 and not self.game.gold_acquired:
+            Treasure(self.game,self)
 
         if self.game.level1:
             if random.randrange(100) < barnacle_spawn_1:
