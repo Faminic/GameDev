@@ -1,7 +1,7 @@
 #will contain settings variables for game in general
 
 #general game settings
-title = "Have fun!"
+title = "Durham Treasure Hunt"
 width = 900
 height = 750
 fps = 60
@@ -63,7 +63,7 @@ plat_width_max = 5
 #order will be grass, sand, stone, snow, castle -> so if terrain = 0, then terrain is grass
 
 #main menu text
-main_menu_title = "Game Name - TBD"
+main_menu_title = "Durham Treasure Hunt"
 main_menu_text1 = "Use left and right arrows to move"
 main_menu_text2 = "Use space to jump"
 main_menu_text3 = "Press any key to play"
@@ -89,7 +89,12 @@ falling_sound = "fall.wav"
 item_sound = "item.wav"
 main_menu_bgmusic = "allthat.ogg"
 go_bgmusic = "november.ogg"
+lc_bgmusic = "funnysong.ogg"
 stage_1_bgmusic = "jazzyfrenchy.ogg"
+stage_2_bgmusic = "anewbeginning.ogg"
+stage_3_bgmusic = "goinghigher.ogg"
+stage_4_bgmusic = "slowmotion.ogg"
+stage_5_bgmusic = "extremeaction.ogg"
 
 
 #mob spawn settings

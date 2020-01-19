@@ -11,20 +11,22 @@ from os import path
 #Fall Noise came from https://freesound.org/people/cabled_mess/sounds/371451/
 #Hit Noise came from https://freesound.org/people/cabled_mess/sounds/350984/
 #Item/Treasure Pickup Noise came from https://freesound.org/people/cabled_mess/sounds/350876/
-#grass stage background music: https://www.bensound.com/royalty-free-music/track/jazzy-frenchy
+#level 1 background music: https://www.bensound.com/royalty-free-music/track/jazzy-frenchy
+#level 2 background music: https://www.bensound.com/royalty-free-music/track/a-new-beginning
+#level 3 background music: https://www.bensound.com/royalty-free-music/track/going-higher
+#level 4 background music: https://www.bensound.com/royalty-free-music/track/slow-motion
+#level 5 background music: https://www.bensound.com/royalty-free-music/track/extreme-action
 #main menu background music: https://www.bensound.com/royalty-free-music/track/november
-#game over background music: https://www.bensound.com/royalty-free-music/track/all-that-chill-hop
+#game over menu background music: https://www.bensound.com/royalty-free-music/track/all-that-chill-hop
+#level cleared menu background music: https://www.bensound.com/royalty-free-music/track/funny-song
 
 '''
 To do after tutorial
-- Show Game Progression in level selection menu
+- Have a good background per level
 - Adjust item/mob spawn rate
-- Need level clear music
-- Have a good background and music per level
-- Reset all saved data before submission (or create a function that does it)
-- Give the game a name and add it to the main/starting screen
 - Change variable names and structure
 - Fill in Word Document
+- Reset all saved data before submission
 - Test the game on the uni system
 '''
 
@@ -173,11 +175,33 @@ class Game:
     #Game Loop
     def run(self):
         self.playing = True
+        volume_level = 0.3
+        if self.level1:
+            pygame.mixer.music.load(path.join(self.sound_dir,stage_1_bgmusic))
+            pygame.mixer.music.set_volume(volume_level)
+            pygame.mixer.music.play(loops=-1)
+        elif self.level2:
+            pygame.mixer.music.load(path.join(self.sound_dir,stage_2_bgmusic))
+            pygame.mixer.music.set_volume(volume_level)
+            pygame.mixer.music.play(loops=-1)
+        elif self.level3:
+            pygame.mixer.music.load(path.join(self.sound_dir,stage_3_bgmusic))
+            pygame.mixer.music.set_volume(volume_level)
+            pygame.mixer.music.play(loops=-1)
+        elif self.level4:
+            pygame.mixer.music.load(path.join(self.sound_dir,stage_4_bgmusic))
+            pygame.mixer.music.set_volume(volume_level)
+            pygame.mixer.music.play(loops=-1)
+        elif self.level5:
+            pygame.mixer.music.load(path.join(self.sound_dir,stage_5_bgmusic))
+            pygame.mixer.music.set_volume(volume_level)
+            pygame.mixer.music.play(loops=-1)
         while self.playing:
             self.clock.tick(fps)
             self.events()
             self.update()
             self.draw()
+        pygame.mixer.music.fadeout(500)
         
     def update_highscore_savefile(self):
         self.highscores=[self.highscore1,self.highscore2,self.highscore3,self.highscore4,self.highscore5]
@@ -397,25 +421,35 @@ class Game:
             self.draw_text(ls_title, 40, white,width/2, 20)
             self.draw_text(ls1_title, 20, white,width/4, 70)
             self.draw_text(ls1_text, 20, white,width/4, 100)
+            if self.level1_silver and self.level1_gold:
+                self.draw_text("(Level Cleared)", 20, white,width/4, 130)
             self.draw_text(ls2_title, 20, white,width*3/4, 70)
             self.draw_text(ls2_text, 20, white,width*3/4, 100)
-            self.draw_text(ls3_title, 20, white,width/4, 140)
-            self.draw_text(ls3_text, 20, white,width/4, 170)
-            self.draw_text(ls4_title, 20, white,width*3/4, 140)
-            self.draw_text(ls4_text, 20, white,width*3/4, 170)
-            self.draw_text(ls5_title, 20, white,width/2,210)
-            self.draw_text(ls5_text, 20, white,width/2, 240)
+            if self.level2_silver and self.level2_gold:
+                self.draw_text("(Level Cleared)", 20, white,width*3/4, 130)
+            self.draw_text(ls3_title, 20, white,width/4, 180)
+            self.draw_text(ls3_text, 20, white,width/4, 210)
+            if self.level3_silver and self.level3_gold:
+                self.draw_text("(Level Cleared)", 20, white,width/4, 240)
+            self.draw_text(ls4_title, 20, white,width*3/4, 180)
+            self.draw_text(ls4_text, 20, white,width*3/4, 210)
+            if self.level4_silver and self.level4_gold:
+                self.draw_text("(Level Cleared)", 20, white,width*3/4, 240)
+            self.draw_text(ls5_title, 20, white,width/2,290)
+            self.draw_text(ls5_text, 20, white,width/2, 320)
+            if self.level5_silver and self.level5_gold:
+                self.draw_text("(Level Cleared)", 20, white,width/2, 350)
 
-            self.draw_text(ls_instructions_title, 40, white,width/2, 290)
-            self.draw_text(ls_instructions_text1, 20, white,width/2, 340)
-            self.draw_text(ls_instructions_text2, 20, white,width/2, 370)
-            self.draw_text(ls_instructions_text3, 20, white,width/2, 400)
-            self.draw_text(ls_instructions_text4, 20, white,width/2, 430)
-            self.draw_text(ls_instructions_text5, 20, white,width/2, 460)
-            self.draw_text(ls_instructions_text6, 20, white,width/2, 490)
-            self.draw_text(ls_instructions_text7, 20, white,width/2, 520)
-            self.draw_text(ls_instructions_text8, 20, white,width/2, 550)
-            self.draw_text(ls_instructions_text9, 20, white,width/2, 580)
+            self.draw_text(ls_instructions_title, 40, white,width/2, 400)
+            self.draw_text(ls_instructions_text1, 20, white,width/2, 450)
+            self.draw_text(ls_instructions_text2, 20, white,width/2, 480)
+            self.draw_text(ls_instructions_text3, 20, white,width/2, 510)
+            self.draw_text(ls_instructions_text4, 20, white,width/2, 540)
+            self.draw_text(ls_instructions_text5, 20, white,width/2, 570)
+            self.draw_text(ls_instructions_text6, 20, white,width/2, 600)
+            self.draw_text(ls_instructions_text7, 20, white,width/2, 630)
+            self.draw_text(ls_instructions_text8, 20, white,width/2, 660)
+            self.draw_text(ls_instructions_text9, 20, white,width/2, 690)
             pygame.display.flip()
             self.ls_wait_for_key()
 
@@ -459,7 +493,7 @@ class Game:
     
     #Show level cleared screen
     def show_cleared_screen(self):
-        pygame.mixer.music.load(path.join(self.sound_dir,main_menu_bgmusic))
+        pygame.mixer.music.load(path.join(self.sound_dir,lc_bgmusic))
         pygame.mixer.music.play(loops=-1)
         #need to update savefiles
         if self.level1:
