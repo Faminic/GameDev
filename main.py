@@ -20,16 +20,6 @@ from os import path
 #game over menu background music: https://www.bensound.com/royalty-free-music/track/all-that-chill-hop
 #level cleared menu background music: https://www.bensound.com/royalty-free-music/track/funny-song
 
-'''
-To do after tutorial
-- Have a good background per level
-- Adjust item/mob spawn rate
-- Change variable names and structure
-- Fill in Word Document
-- Reset all saved data before submission
-- Test the game on the uni system
-'''
-
 class Game:
     #initializing the game window and so on
     def __init__(self):
@@ -133,22 +123,27 @@ class Game:
             self.highscore = self.highscore1
             self.silver_acquired = self.level1_silver
             self.gold_acquired = self.level1_gold
+            self.background = Background(self,"images/palace_green.jpg")
         elif self.level2:
             self.highscore = self.highscore2
             self.silver_acquired = self.level2_silver
             self.gold_acquired = self.level2_gold
+            self.background = Background(self,"images/snowy_durham.jpg")
         elif self.level3:
             self.highscore = self.highscore3
             self.silver_acquired = self.level3_silver
             self.gold_acquired = self.level3_gold
+            self.background = Background(self,"images/kingsgate_bridge.jpg")
         elif self.level4:
             self.highscore = self.highscore4
             self.silver_acquired = self.level4_silver
             self.gold_acquired = self.level4_gold
+            self.background = Background(self,"images/durham_cathedral.jpg")
         elif self.level5:
             self.highscore = self.highscore5
             self.silver_acquired = self.level5_silver
             self.gold_acquired = self.level5_gold
+            self.background = Background(self,"images/bill_bryson.jpg")
         self.run()
 
     #used to load all necessary data
@@ -176,6 +171,8 @@ class Game:
     def run(self):
         self.playing = True
         volume_level = 0.3
+        self.screen.fill(bgcolor)
+        self.screen.blit(self.background.image,self.background.rect)
         if self.level1:
             pygame.mixer.music.load(path.join(self.sound_dir,stage_1_bgmusic))
             pygame.mixer.music.set_volume(volume_level)
@@ -353,7 +350,7 @@ class Game:
         treasure_hits = pygame.sprite.spritecollide(self.player, self.treasure, False)
         if treasure_hits:
             self.item_sound.play()
-            if self.score < 100:
+            if self.score < gold_coin_min:
                 self.silver_acquired = True
             else:
                 self.gold_acquired = True
@@ -400,7 +397,7 @@ class Game:
     def draw(self):
         self.screen.fill(bgcolor)
         self.all_sprites.draw(self.screen)
-        self.draw_text(str(self.score),30,white,width/2,15)
+        self.draw_text(str(self.score),50,durham_color,width/2,15)
         #after drawing everything, flip the display
         pygame.display.flip()
 
@@ -441,15 +438,12 @@ class Game:
                 self.draw_text("(Level Cleared)", 20, white,width/2, 350)
 
             self.draw_text(ls_instructions_title, 40, white,width/2, 400)
-            self.draw_text(ls_instructions_text1, 20, white,width/2, 450)
-            self.draw_text(ls_instructions_text2, 20, white,width/2, 480)
-            self.draw_text(ls_instructions_text3, 20, white,width/2, 510)
-            self.draw_text(ls_instructions_text4, 20, white,width/2, 540)
-            self.draw_text(ls_instructions_text5, 20, white,width/2, 570)
-            self.draw_text(ls_instructions_text6, 20, white,width/2, 600)
-            self.draw_text(ls_instructions_text7, 20, white,width/2, 630)
-            self.draw_text(ls_instructions_text8, 20, white,width/2, 660)
-            self.draw_text(ls_instructions_text9, 20, white,width/2, 690)
+            self.draw_text(ls_instructions_text6, 20, white,width/2, 450)
+            self.draw_text(ls_instructions_text1, 20, white,width/2, 480)
+            self.draw_text(ls_instructions_text8, 20, white,width/2, 510)
+            self.draw_text(ls_instructions_text2, 20, white,width/2, 540)
+            self.draw_text(ls_instructions_text3, 20, white,width/2, 570)
+            
             pygame.display.flip()
             self.ls_wait_for_key()
 
@@ -679,18 +673,18 @@ class Game:
         text_rect.midtop = (x,y)
         self.screen.blit(text_surface, text_rect)
 
-g = Game()
-g.show_start_screen()
-while g.running:
-    g.new()
-    if g.cleared:
-        g.cleared = False
-        g.show_cleared_screen()
+newGame = Game()
+newGame.show_start_screen()
+while newGame.running:
+    newGame.new()
+    if newGame.cleared:
+        newGame.cleared = False
+        newGame.show_cleared_screen()
     else:
-        g.show_go_screen()
+        newGame.show_go_screen()
     #so goes back to main screen if any key except space pressed in game over screen
-    if g.restart:
-        g.show_start_screen()
-        g.restart = False
+    if newGame.restart:
+        newGame.show_start_screen()
+        newGame.restart = False
 
 pygame.quit()

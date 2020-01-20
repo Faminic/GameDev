@@ -175,9 +175,9 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         #spawn treasures
-        if self.game.score > 50 and not self.game.silver_acquired:
+        if self.game.score > silver_coin_min and not self.game.silver_acquired:
             Treasure(self.game,self)
-        elif self.game.score > 100 and not self.game.gold_acquired:
+        elif self.game.score > gold_coin_min and not self.game.gold_acquired:
             Treasure(self.game,self)
 
         if self.game.level1:
@@ -529,7 +529,7 @@ class Mouse(pygame.sprite.Sprite):
 
 class Treasure(pygame.sprite.Sprite):
     def __init__(self,game,plat):
-        self._layer = item_layer
+        self._layer = player_layer
         self.groups = game.all_sprites, game.treasure
         pygame.sprite.Sprite.__init__(self,self.groups)
         self.game = game
@@ -588,3 +588,15 @@ class Star(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = self.spawn_location
         self.rect.bottom = self.plat.rect.top - 2
+
+
+class Background(pygame.sprite.Sprite):
+    def __init__(self,game,file):
+        self._layer = background_layer
+        self.groups = game.all_sprites
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        self.game = game
+        self.image = pygame.image.load(file)
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0

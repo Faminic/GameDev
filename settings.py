@@ -6,8 +6,8 @@ width = 900
 height = 750
 fps = 60
 font_name = "arial"
-silver_coin_min = 50 #number of points needed to get silver coin
-gold_coin_min = 100 #number of points needed to get gold coin
+silver_coin_min = 25 #number of points needed to get silver coin
+gold_coin_min = 50 #number of points needed to get gold coin
 invincible_item_duration = 5000
 
 
@@ -27,10 +27,6 @@ items_spritesheet = "items_spritesheet.png"
 #colors
 white = (255,255,255)
 black = (0,0,0)
-red = (255,0,0)
-green = (0,255,0)
-blue = (0,0,255)
-yellow = (255,255,0)
 strong_blue = (14,76,146)
 durham_color = (114,36,108)
 bgcolor = strong_blue
@@ -57,10 +53,6 @@ platform_list = [(0,height-60, 13),
 #platform spawn properties -> properties used when spawning new platforms
 plat_width_min = 3
 plat_width_max = 5
-
-
-#platform terrain types
-#order will be grass, sand, stone, snow, castle -> so if terrain = 0, then terrain is grass
 
 #main menu text
 main_menu_title = "Durham Treasure Hunt"
@@ -106,17 +98,17 @@ mouse_spawn = 10
 
 
 #layer settings -> order in which things appear on screen
-player_layer = 4
-item_layer = 3
-mob_layer = 2
-platform_layer = 1
-background_layer = 0
+player_layer = 5
+item_layer = 4
+mob_layer = 3
+platform_layer = 2
+background_layer = 1
 
 
 #stage-specific settings
 
 #stage 1 -> Palace Green
-bee_spawn_1 = 5000 
+bee_spawn_1 = 3000 
 bat_spawn_1 = 0 #in the code, you just pass
 barnacle_spawn_1 = 20 
 spider_spawn_1 = 0
@@ -127,7 +119,7 @@ bomb_spawn_1 = 0
 star_spawn_1 = 0
 
 #stage 2 -> Snowy Durham
-bee_spawn_2 = 5000 
+bee_spawn_2 = 3000 
 bat_spawn_2 = 0 
 barnacle_spawn_2 = 30 
 spider_spawn_2 = 0
@@ -140,46 +132,46 @@ star_spawn_2 = 0
 icy_player_friction = -0.08
 
 #stage 3 -> Kingsgate Bridge
-bee_spawn_3 = 8000 
-bat_spawn_3 = 10000 
+bee_spawn_3 = 5000 
+bat_spawn_3 = 6000 
 barnacle_spawn_3 = 20 
 spider_spawn_3 = 0
 mouse_spawn_3 = 15
 
-heart_spawn_3 = 4
+heart_spawn_3 = 3
 bomb_spawn_3 = 2
-star_spawn_3 = 2
+star_spawn_3 = 1
 
 player_sidewind = - 1
 
 #stage 4 -> Cathedral
-bee_spawn_4 = 10000 
-bat_spawn_4 = 8000 
+bee_spawn_4 = 6000 
+bat_spawn_4 = 5000 
 barnacle_spawn_4 = 10
 spider_spawn_4 = 5
 mouse_spawn_4 = 15
 
-heart_spawn_4 = 5
-bomb_spawn_4 = 5
-star_spawn_4 = 4
+heart_spawn_4 = 3
+bomb_spawn_4 = 3
+star_spawn_4 = 2
 
 #stage 5 -> Bill Bryson
-bee_spawn_5 = 12000
-bat_spawn_5 = 10000 
+bee_spawn_5 = 7000
+bat_spawn_5 = 4000 
 barnacle_spawn_5 = 10
-spider_spawn_5 = 6
-mouse_spawn_5 = 10
+spider_spawn_5 = 25
+mouse_spawn_5 = 13
 
-heart_spawn_5 = 6
-bomb_spawn_5 = 7
-star_spawn_5 = 6
+heart_spawn_5 = 3
+bomb_spawn_5 = 3
+star_spawn_5 = 3
 
 
 #Level Selection Text
 ls_instructions_title = "Advanced Instructions"
 ls_instructions_text1 = "Aim is to collect two treasures hidden in each level while avoiding all enemies"
-ls_instructions_text2 = "Treasure 1: A silver coin that appears after you reach a score of 50"
-ls_instructions_text3 = "Treasure 2: A gold coin that appears after you reach a score of 100"
+ls_instructions_text2 = "Treasure 1: A silver coin that appears after you reach a score of 25"
+ls_instructions_text3 = "Treasure 2: A gold coin that appears after you reach a score of 50"
 
 ls_instructions_text4 = "The following items may spawn: Extra Heart, Bomb to kill all"
 ls_instructions_text5 = "enemies on screen and Star to be immune to enemies for 5 seconds"
